@@ -965,12 +965,16 @@ function scoreLocation(around) {
   return { total, edu, transit, amen: amenScore };
 }
 
-// ---------- DeepSeek 调用（结构化输出） ----------
-const BUILTIN_KEY = 'sk-ad8ae096893c4a5dbc24046d818015db';
+// ---------- DeepSeek 调用（结构化输出 + 代理安全模式） ----------
+// DS_PROXY_URL：Vercel 部署 ds-proxy 后获取的地址，例 'https://house-asset-ds-proxy.vercel.app/api'
+// 填了就走代理（Key 只活在服务器端，安全）；留空则直连 DeepSeek（Key 暴露在前端）。
+const DS_PROXY_URL = '';
+const BUILTIN_KEY = 'sk-ad8ae096893c4a5dbc24046d818015db'; // 仅在直连模式使用
+
 async function getDeepSeekAdvice(r, ctx) {
-  const key = BUILTIN_KEY;
-  if (!key) return null;
-  const url = 'https://api.deepseek.com/chat/completions';
+  const useProxy = !!DS_PROXY_URL;
+  if (!useProxy && !BUILTIN_KEY) return null;
+  const url = useProxy ? DS_PROXY_URL : 'https://api.deepseek.com/chat/completions';
   const investStatement = '本工具采用双轴研判：增值潜力（由城市能级与人口流向决定）与保值力（由高德真实学区/交通/配套决定）。' +
     '本次评估：增值潜力「' + r.growthLevel + '」、保值力「' + (r.loc == null ? '未评定（未提供小区）' : r.preserveLevel) + '」' +
     (r.loc != null ? '（保值力数值 ' + r.loc + '/100，来源：高德真实检索）' : '') + '。';
@@ -1012,7 +1016,8 @@ async function getDeepSeekAdvice(r, ctx) {
     '重要原则：必须严格区分"增值"与"保值"两个概念——增值看城市能级与人口流向，保值看本地段学区/交通/配套。县城核心学区可"保值不增值"，一线远郊可"增值弱、保值更弱"。请勿仅凭城市能级就判定三四线房产为垃圾资产，也不要仅凭高能级城市就认定远郊有投资价值。' +
     amapText;
   const body = { model: 'deepseek-v4-flash', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 800 };
-  const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key };
+  const headers = { 'Content-Type': 'application/json' };
+  if (!useProxy) headers.Authorization = 'Bearer ' + BUILTIN_KEY;  // 代理模式零 Key；直连模式仍带 Key
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
