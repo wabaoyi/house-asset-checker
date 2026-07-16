@@ -1367,9 +1367,14 @@ async function runDiagnosis(ctx, typingMsg) {
     const header = a && a.verified
       ? '✅ 已核验「' + a.name + '」，智能专家团诊断中…'
       : '🧠 未配置小区核验，诊断中…';
-    const footer = remaining > 0
-      ? '<div class="countdown" style="margin-top:8px;font-size:12px;color:#888;">预计等待 ' + remaining + ' 秒</div>'
-      : '<div class="countdown" style="margin-top:8px;font-size:12px;color:#888;">仍在深度分析，请稍候…</div>';
+    let footer;
+    if (remaining >= 10) {
+      footer = '<div class="countdown" style="margin-top:8px;font-size:12px;color:#888;">正在生成报告…</div>';
+    } else if (remaining > 0) {
+      footer = '<div class="countdown" style="margin-top:8px;font-size:12px;color:#888;">正在生成，已等待 ' + (10 - remaining) + ' 秒</div>';
+    } else {
+      footer = '<div class="countdown" style="margin-top:8px;font-size:12px;color:#888;">仍在深度分析，请稍候…</div>';
+    }
     bubble.innerHTML = header + footer;
   }
 
