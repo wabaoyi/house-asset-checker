@@ -338,16 +338,8 @@
 <div class="wechat-tip" id="recordModal">
   <div class="box" style="max-width:440px;">
     <h4>我的查询记录</h4>
-    <div id="recordList" style="max-height:52vh;overflow:auto;text-align:left;font-size:13px;"></div>
-    <div id="recordExportText" style="display:none;margin-top:10px;">
-      <textarea id="recText" readonly style="width:100%;height:160px;font-size:12px;"></textarea>
-      <div class="hint" style="margin-top:6px;">长按上方文字全选复制，或截图保存。</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn" id="exportRecords" style="flex:1;">导出 / 复制</button>
-      <button class="link-btn" id="clearRecords">清空</button>
-    </div>
-    <button id="closeRecordModal" style="margin-top:10px;">关闭</button>
+    <div id="recordList" style="max-height:60vh;overflow:auto;text-align:left;font-size:13px;"></div>
+    <button id="closeRecordModal" style="margin-top:14px;background:#2A2A28;color:#fff;">关闭</button>
   </div>
 </div>
 
@@ -1510,59 +1502,42 @@ function fmtTime(iso) {
 function renderRecords() {
   const list = loadRecords();
   const el = document.getElementById('recordList');
-  if (!list.length) { el.innerHTML = '<div style="color:#888;padding:24px 0;text-align:center;">暂无查询记录</div>'; return; }
-  el.innerHTML = list.map(r => {
+  if (!list.length) { el.innerHTML = '<div style="color:#A8A59A;padding:32px 0;text-align:center;font-size:13px;">暂无查询记录</div>'; return; }
+  el.innerHTML = list.map((r, i) => {
     const sub = [
       r.age !== '' ? ('房龄' + r.age + '年') : '',
       r.buy ? ('估值' + r.buy + '万') : '',
       r.cost ? ('买入' + r.cost + '万') : '',
       r.rent ? (r.rent + '元/月') : ''
     ].filter(Boolean).join(' · ');
-    return '<div style="padding:9px 2px;border-bottom:1px solid #ECEAE2;">' +
-      '<div style="font-weight:600;color:#2C2C2A;">' + fmtTime(r.time) + ' · ' + r.city + ' · ' + r.community + '</div>' +
-      (sub ? '<div style="color:#8A887F;font-size:12px;margin-top:2px;">' + sub + '</div>' : '') +
+    return '<div style="background:#F5F4EE;border-radius:10px;padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-weight:600;color:#2C2C2A;font-size:14px;">' + r.city + ' · ' + r.community + '</div>' +
+        '<div style="color:#A8A59A;font-size:11px;margin-top:3px;">' + fmtTime(r.time) + (sub ? ' · ' + sub : '') + '</div>' +
+      '</div>' +
+      '<button data-idx="' + i + '" class="rec-del" style="flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:#C85A3A;font-size:18px;line-height:1;cursor:pointer;padding:0;font-family:inherit;" title="删除此条">×</button>' +
       '</div>';
   }).join('');
-}
-function buildCSV() {
-  const list = loadRecords();
-  const header = ['时间', '城市', '小区', '房龄(年)', '估值(万)', '买入价(万)', '月租(元)'];
-  const rows = list.map(r => [fmtTime(r.time), r.city, r.community, r.age, r.buy, r.cost, r.rent]);
-  return [header].concat(rows).map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
-}
-function exportRecords() {
-  const list = loadRecords();
-  if (!list.length) { alert('暂无记录'); return; }
-  const mobile = /Mobi|Android|iPhone|iPad|iPod|MicroMessenger|HarmonyOS/i.test(navigator.userAgent);
-  if (mobile) {
-    // 移动端无 download 支持：展示文本供长按复制
-    document.getElementById('recordList').style.display = 'none';
-    document.getElementById('recordExportText').style.display = 'block';
-    document.getElementById('recText').value = buildCSV();
-    return;
-  }
-  const blob = new Blob(['\ufeff' + buildCSV()], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '房产查询记录_' + fmtTime(new Date().toISOString()).replace(/[: ]/g, '-') + '.csv';
-  a.click();
+  // 绑定删除按钮
+  el.querySelectorAll('.rec-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-idx'), 10);
+      const list = loadRecords();
+      if (!isNaN(idx) && idx >= 0 && idx < list.length) {
+        list.splice(idx, 1);
+        try { localStorage.setItem(RECORD_KEY, JSON.stringify(list)); } catch (e) {}
+        updateRecCount();
+        renderRecords();
+      }
+    });
+  });
 }
 document.getElementById('openRecords').addEventListener('click', () => {
-  document.getElementById('recordList').style.display = 'block';
-  document.getElementById('recordExportText').style.display = 'none';
   renderRecords();
   document.getElementById('recordModal').classList.add('show');
 });
 document.getElementById('closeRecordModal').addEventListener('click', () => {
   document.getElementById('recordModal').classList.remove('show');
-});
-document.getElementById('exportRecords').addEventListener('click', exportRecords);
-document.getElementById('clearRecords').addEventListener('click', () => {
-  if (confirm('确定清空本机所有查询记录？此操作不可恢复。')) {
-    localStorage.removeItem(RECORD_KEY);
-    updateRecCount();
-    renderRecords();
-  }
 });
 updateRecCount();
 
