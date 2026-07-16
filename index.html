@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>房产资产体检 · 智能专家团初诊</title>
+<script src="html2canvas.min.js?v=20260714a"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #2C2C2A; background: #F1EFE8; line-height: 1.6;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 28px 18px 48px; }
+  .hero { text-align: center; margin-bottom: 26px; }
+  .hero h1 { font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: 0.5px; }
+  .hero p { font-size: 14px; color: #5F5E5A; margin: 0 auto; max-width: 360px; line-height: 1.7; }
+  .card { background: #fff; border: 0.5px solid #D3D1C7; border-radius: 18px; padding: 22px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.03); }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group:last-of-type { margin-bottom: 6px; }
+  label { display: block; font-size: 14px; color: #2C2C2A; margin: 0 0 8px; font-weight: 500; }
+  .req::after { content: " *"; color: #A32D2D; }
+  .opt-label { font-size: 12px; color: #888780; font-weight: 400; margin-left: 4px; }
+  input, select {
+    width: 100%; font-size: 15px; padding: 12px 14px;
+    border: 0.5px solid #D3D1C7; border-radius: 12px; background: #FAFAFA; color: #2C2C2A; font-family: inherit;
+  }
+  input::placeholder { color: #AAA; }
+  input:focus, select:focus { outline: none; border-color: #185FA5; background: #fff; box-shadow: 0 0 0 3px rgba(24,95,165,0.08); }
+  .hint { font-size: 12px; color: #888780; margin: 6px 0 0; line-height: 1.5; }
+
+  .group-title { font-size: 12px; color: #888780; margin: 4px 0 14px; padding-bottom: 8px; border-bottom: 1px solid #F1EFE8; letter-spacing: 0.5px; }
+  .group-title + .form-group { margin-top: 0; }
+
+  .btn { width: 100%; font-size: 16px; font-weight: 500; padding: 14px; border: none; border-radius: 13px; background: #185FA5; color: #fff; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 6px rgba(24,95,165,0.2); }
+  .btn:active { background: #0C447C; }
+  .form-foot { margin-top: 12px; text-align: center; }
+  .link-btn { background: none; border: none; color: #8A887F; font-size: 12.5px; cursor: pointer; padding: 4px 6px; text-decoration: underline; }
+  .link-btn:active { color: #5F5E5A; }
+
+  /* ---- 对话式确认 ---- */
+  #chatCard { display: none; }
+  .chat-msgs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .msg { display: flex; }
+  .msg.bot { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+  .bubble { max-width: 86%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .msg.bot .bubble { background: #F1EFE8; color: #2C2C2A; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #185FA5; color: #fff; border-bottom-right-radius: 4px; }
+  .chat-actions { display: flex; gap: 10px; }
+  .chat-btn { flex: 1; font-size: 14px; padding: 12px; border-radius: 11px; cursor: pointer; }
+  .chat-btn.ghost { background: #fff; border: 0.5px solid #185FA5; color: #185FA5; }
+  .chat-btn.solid { background: #185FA5; border: none; color: #fff; }
+  .chat-btn:active { opacity: .85; }
+  .typing { display: inline-flex; gap: 4px; align-items: center; padding: 2px 0; }
+  .typing span { width: 6px; height: 6px; border-radius: 50%; background: #888780; animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+
+  /* ---- 报告 ---- */
+  #result { display: none; }
+  .report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #E9E7DF; }
+  .report-title { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: 0.5px; }
+  .report-meta { font-size: 11px; color: #888780; text-align: right; line-height: 1.5; }
+  .report-tag { font-size: 11px; color: #185FA5; background: #E6F1FB; padding: 2px 7px; border-radius: 5px; display: inline-block; margin-top: 4px; }
+  .report-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .report-chip { font-size: 12px; background: #F1EFE8; color: #5F5E5A; padding: 5px 10px; border-radius: 14px; }
+  .report-chip.warn { background: #FCE8E8; color: #A32D2D; }
+  .report-chip.good { background: #E6F0DD; color: #3B6D11; }
+
+  .verdict-card { display: flex; gap: 14px; align-items: center; background: #FAF8F2; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .verdict-badge { flex: 0 0 auto; text-align: center; min-width: 88px; }
+  .verdict-badge .tag { font-size: 15px; font-weight: 600; color: #fff; padding: 8px 14px; border-radius: 10px; display: inline-block; }
+  .verdict-badge .score { font-size: 32px; font-weight: 700; line-height: 1; margin-top: 8px; }
+  .verdict-badge .label { font-size: 11px; color: #888780; margin-top: 4px; }
+  .verdict-main { flex: 1; }
+  .verdict-main .line { font-size: 14px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
+  .verdict-main .sub { font-size: 12px; color: #5F5E5A; line-height: 1.6; }
+
+  .invest-card { border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; }
+  .invest-card.invest { background: #E6F0DD; color: #3B6D11; }
+  .invest-card.reside { background: #FFF3D9; color: #BA7517; }
+  .invest-card.danger { background: #FCE8E8; color: #A32D2D; }
+  .invest-card .title { font-weight: 600; margin-bottom: 6px; }
+  .invest-card .body { line-height: 1.7; }
+
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .kpi-grid .kpi-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .kpi-card { background: #FAF8F2; border-radius: 12px; padding: 12px; }
+  .kpi-card .name { font-size: 11px; color: #888780; margin-bottom: 4px; }
+  .kpi-card .val { font-size: 18px; font-weight: 600; color: #2C2C2A; }
+  .kpi-card .note { font-size: 11px; color: #5F5E5A; margin-top: 2px; }
+  .kpi-good .val { color: #3B6D11; }
+  .kpi-warn .val { color: #BA7517; }
+  .kpi-bad .val { color: #A32D2D; }
+
+  .section { margin-bottom: 16px; }
+  .section-title { font-size: 14px; font-weight: 600; color: #2C2C2A; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+  .section-title .dot { width: 6px; height: 6px; border-radius: 50%; background: #185FA5; }
+  .ai-mark { font-size: 10px; color: #185FA5; background: #E6F1FB; padding: 1px 5px; border-radius: 4px; margin-left: 4px; font-weight: 500; }
+
+  .score-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+  .score-table th { text-align: left; font-weight: 500; color: #5F5E5A; padding: 8px 10px; background: #F1EFE8; border-bottom: 1px solid #E9E7DF; }
+  .score-table td { padding: 10px; border-bottom: 1px solid #F1EFE8; vertical-align: top; }
+  .score-table td:first-child { font-weight: 500; color: #2C2C2A; width: 90px; }
+  .score-table td:nth-child(2) { width: 60px; }
+  .score-table .bar { height: 8px; border-radius: 4px; background: #E9E7DF; overflow: hidden; }
+  .score-table .bar span { display: block; height: 100%; border-radius: 4px; }
+  .score-table .status { font-size: 11px; color: #888780; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .bar-name { width: 64px; font-size: 12px; color: #5F5E5A; flex: 0 0 auto; }
+  .bar-track { flex: 1; height: 8px; background: #F1EFE8; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+  .bar-val { width: 28px; text-align: right; font-size: 12px; color: #2C2C2A; flex: 0 0 auto; }
+  .bar-tag { font-size: 10px; padding: 1px 5px; border-radius: 4px; margin-left: 4px; }
+  .tag-good { color: #3B6D11; background: #E6F0DD; }
+  .tag-mid { color: #BA7517; background: #FFF3D9; }
+  .tag-bad { color: #A32D2D; background: #FCE8E8; }
+
+  .summary-card { background: #FAF8F2; border-radius: 12px; padding: 14px; font-size: 13px; color: #444441; line-height: 1.7; }
+  .summary-card strong { color: #2C2C2A; }
+
+  .list-card { background: #FAF8F2; border-radius: 12px; padding: 12px 14px; font-size: 13px; }
+  .list-card ul { margin: 0; padding-left: 16px; }
+  .list-card li { margin-bottom: 6px; color: #444441; line-height: 1.6; }
+  .list-card li:last-child { margin-bottom: 0; }
+
+  .op-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .op-table th { text-align: left; font-weight: 500; color: #5F5E5A; padding: 8px 10px; background: #F1EFE8; border-bottom: 1px solid #E9E7DF; }
+  .op-table td { padding: 10px; border-bottom: 1px solid #F1EFE8; vertical-align: top; }
+  .op-table td:first-child { width: 70px; font-weight: 500; color: #2C2C2A; }
+  .op-table .act { color: #185FA5; font-weight: 500; }
+  .op-table .watch { color: #888780; }
+
+  .notice { font-size: 11px; color: #BA7517; margin: 10px 0 16px; line-height: 1.5; }
+  .cta-row { display: flex; gap: 10px; margin-top: 18px; }
+  .cta-ghost { flex: 1; font-size: 13px; padding: 11px; border: 0.5px solid #185FA5; color: #185FA5; background: #fff; border-radius: 10px; cursor: pointer; }
+  .cta-solid { flex: 1; font-size: 13px; padding: 11px; border: none; background: #185FA5; color: #fff; border-radius: 10px; cursor: pointer; }
+  .disclaimer { font-size: 11px; color: #888780; text-align: center; margin-top: 16px; line-height: 1.6; border-top: 1px solid #E9E7DF; padding-top: 12px; }
+  .restart { display: block; text-align: center; font-size: 12px; color: #185FA5; margin-top: 12px; cursor: pointer; }
+  .wechat-tip {
+    position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.55);
+    display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .wechat-tip.show { display: flex; }
+  .wechat-tip .box {
+    background: #fff; border-radius: 16px; padding: 22px; max-width: 340px; width: 100%;
+    max-height: 86vh; overflow-y: auto; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  }
+  .wechat-tip .box h4 { margin: 0 0 12px; font-size: 17px; color: #2C2C2A; }
+  .wechat-tip .box p { margin: 0 0 18px; font-size: 14px; color: #5F5E5A; line-height: 1.7; }
+  .wechat-tip .box button {
+    width: 100%; padding: 12px; font-size: 15px; border-radius: 12px; border: none;
+    background: #2C2C2A; color: #F9F7F0; font-weight: 500; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>房产资产体检</h1>
+    <p>填城市、小区与房龄，智能专家团像顾问一样跟你确认一遍，再出诊断：你的房子是资产还是负债？</p>
+  </div>
+
+  <!-- 步骤1：信息录入 -->
+  <div class="card" id="formCard">
+    <div class="group-title">必填信息</div>
+
+    <div class="form-group">
+      <label class="req">所在城市</label>
+      <input id="city" placeholder="如 成都 / 杭州 / 沈阳（仅支持县城/县级市以上标准城市名）" autocomplete="off" />
+      <div class="hint">直接输入标准城市名称，仅支持县城/县级市以上；乡镇/村庄不适用。未列出的城市按标准城市能级表判定（省会/非省会自动区分）。</div>
+    </div>
+
+    <div class="form-group">
+      <label class="req">小区名称</label>
+      <input id="community" placeholder="如 华润悦府 / 某某花园" autocomplete="off" />
+      <div class="hint">填上小区名，将自动核验真实性，并用高德地图检索周边地铁/学校/医院/商超/公园的真实配套数据。</div>
+    </div>
+
+    <div class="group-title" style="margin-top:24px;">补充信息（填了更准）</div>
+
+    <div class="form-group">
+      <label>房子房龄（年）<span class="opt-label"> · 选填</span></label>
+      <input id="age" type="number" min="0" max="80" placeholder="例如 12" />
+      <div class="hint">未填时专家团按默认 10 年估算，结果可能不够精准。</div>
+    </div>
+
+    <div class="form-group">
+      <label>当前估值（万元）<span class="opt-label"> · 选填</span></label>
+      <input id="buy" type="number" min="0" placeholder="例如 180" />
+      <div class="hint">用于算租金回报率、租售比。可填当前市场价或心理预期价。</div>
+    </div>
+
+    <div class="form-group">
+      <label>买入价（万元）<span class="opt-label"> · 选填</span></label>
+      <input id="cost" type="number" min="0" placeholder="例如 150" />
+      <div class="hint">填了能判断这套房目前是浮盈还是浮亏，帮助决策是否卖出。</div>
+    </div>
+
+    <div class="form-group">
+      <label>月租金（元 / 月）<span class="opt-label"> · 选填</span></label>
+      <input id="rent" type="number" min="0" placeholder="例如 3500" />
+      <div class="hint">填实际租金，专家团才能判断这套房现金流是否健康。</div>
+    </div>
+
+    <div id="formHint" style="display:none;margin:0 0 12px;padding:10px 12px;border-radius:8px;background:#FDECEC;color:#C0392B;font-size:13px;font-weight:600;border:1px solid #F5C6C6;"></div>
+    <button class="btn" id="submitBtn">下一步：让智能专家团确认信息</button>
+    <div class="form-foot">
+      <button type="button" class="link-btn" id="openRecords">📋 我的查询记录（<span id="recCount">0</span>）· 仅存本机</button>
+    </div>
+  </div>
+
+  <!-- 步骤2：对话确认 -->
+  <div class="card" id="chatCard">
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="chat-actions" id="chatActions">
+      <button class="chat-btn ghost" id="modifyBtn">✎ 我要修改</button>
+      <button class="chat-btn solid" id="confirmBtn">✓ 确认，开始智能专家团诊断</button>
+    </div>
+  </div>
+
+  <!-- 步骤3：诊断报告 -->
+  <div class="card" id="result">
+    <div class="report-header">
+      <div>
+        <div class="report-title">资产体检报告</div>
+        <span class="report-tag">智能专家团出诊</span>
+      </div>
+      <div class="report-meta">
+        <div id="reportId">NO.20260713001</div>
+        <div id="reportDate">生成时间：--</div>
+      </div>
+    </div>
+
+    <div class="report-chips" id="chips"></div>
+
+    <div class="verdict-card" id="verdictCard">
+      <div class="verdict-badge">
+        <div class="tag" id="verdictBadge">中性资产</div>
+      </div>
+      <div class="verdict-main">
+        <div class="line" id="verdictLine">这套房是典型的「现金流稳、升值难」资产。</div>
+        <div class="sub" id="verdictSub">建议以收租养老为主，不适合博涨幅。中期需关注城市更新与流动性变化。</div>
+      </div>
+    </div>
+
+    <div class="invest-card" id="investCard">
+      <div class="title" id="investTitle">投资属性判定</div>
+      <div class="body" id="investBody">--</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="dot"></span>价值评定表（按权重）</div>
+      <table class="score-table" id="scoreTable">
+        <tr><th>评分项</th><th>权重</th><th>状态</th></tr>
+      </table>
+      <div class="hint" id="scoreHint">板块与房子基于城市、小区、房龄做合理估算；如需精确评定，请补充板块与房子细节。</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="dot"></span>关键指标</div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <div class="section" id="amenitySection" style="display:none;">
+      <div class="section-title"><span class="dot" style="background:#185FA5;"></span>周边配套大数据<span class="ai-mark">高德</span></div>
+      <div class="summary-card" id="amenityCard"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="dot"></span>五维评分</div>
+      <div id="bars"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">智能专家团诊断<span class="ai-mark">专家团</span></div>
+      <div class="summary-card" id="summaryCard"></div>
+    </div>
+
+    <div class="section" id="proSection" style="display:none;">
+      <div class="section-title"><span class="dot" style="background:#3B6D11;"></span>核心优势</div>
+      <div class="list-card" id="proList"></div>
+    </div>
+
+    <div class="section" id="riskSection" style="display:none;">
+      <div class="section-title"><span class="dot" style="background:#A32D2D;"></span>主要风险</div>
+      <div class="list-card" id="riskList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="dot" style="background:#185FA5;"></span>未来房产趋势</div>
+      <div class="summary-card" id="trendCard" style="font-size:13px;line-height:1.7;"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="dot"></span>操作建议时间表</div>
+      <table class="op-table" id="opTable"></table>
+    </div>
+
+    <div class="notice" id="aiNotice"></div>
+
+    <div class="cta-row">
+      <button class="cta-ghost" id="saveBtn">一键保存报告</button>
+      <button class="cta-solid" id="restart">重新体验</button>
+    </div>
+    <div class="disclaimer">
+      本结果为智能专家团初步体检，城市能级、房价行情等基于评分表与模型推理估算，非实时交易数据或精准估值，卖留决策与资产配置请咨询助理老师。
+    </div>
+  </div>
+</div>
+
+<div class="wechat-tip" id="wechatTip">
+  <div class="box">
+    <h4 id="wtTitle">正在生成图片…</h4>
+    <div id="wtLoading" style="padding:30px 0;color:#888;font-size:14px;">图片生成中，请稍候…</div>
+    <div id="wtImgWrap" style="display:none;">
+      <img id="wtImg" style="width:100%;border-radius:10px;display:block;background:#fff;" alt="体检报告" />
+      <p style="font-size:13px;color:#5F5E5A;margin:10px 0 0;line-height:1.6;">👆 长按上方图片，在菜单中选择「<strong>保存到相册</strong>」即可收藏报告</p>
+    </div>
+    <div id="wtFallback" style="display:none;text-align:left;background:#F7F6F0;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.7;">
+      图片生成失败，请直接截图保存本页报告：<br>
+      1️⃣ 手机同时按「电源键 + 音量减键」截屏<br>
+      2️⃣ 或双指捏合页面缩放后长按 → 选择「保存图片」<br>
+      3️⃣ 微信内可点右上角「···」→「在浏览器打开」后操作
+    </div>
+    <button id="closeWechatTip">关闭</button>
+  </div>
+</div>
+
+<div class="wechat-tip" id="recordModal">
+  <div class="box" style="max-width:440px;">
+    <h4>我的查询记录</h4>
+    <div id="recordList" style="max-height:52vh;overflow:auto;text-align:left;font-size:13px;"></div>
+    <div id="recordExportText" style="display:none;margin-top:10px;">
+      <textarea id="recText" readonly style="width:100%;height:160px;font-size:12px;"></textarea>
+      <div class="hint" style="margin-top:6px;">长按上方文字全选复制，或截图保存。</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn" id="exportRecords" style="flex:1;">导出 / 复制</button>
+      <button class="link-btn" id="clearRecords">清空</button>
+    </div>
+    <button id="closeRecordModal" style="margin-top:10px;">关闭</button>
+  </div>
+</div>
+
+<script>
+// ---------- 城市能级知识库（按房产价值判断表） ----------
+// 城市分数：一线50 / 新一线40 / 二线35 / 弱二线省会25 / 三四线10
+const INVEST_TIERS = ['一线', '新一线', '二线']; // 具备投资价值
+const CITY_SCORES = { '一线': 50, '新一线': 40, '二线': 35, '弱二线省会': 25, '三四线': 10 };
+
+const cityDB = {
+  // 一线
+  '北京': { tier:'一线', score:50, invest:true },
+  '上海': { tier:'一线', score:50, invest:true },
+  '广州': { tier:'一线', score:50, invest:true },
+  '深圳': { tier:'一线', score:50, invest:true },
+  // 新一线（9城）
+  '杭州': { tier:'新一线', score:40, invest:true },
+  '重庆': { tier:'新一线', score:40, invest:true },
+  '苏州': { tier:'新一线', score:40, invest:true },
+  '西安': { tier:'新一线', score:40, invest:true },
+  '武汉': { tier:'新一线', score:40, invest:true },
+  '南京': { tier:'新一线', score:40, invest:true },
+  '合肥': { tier:'新一线', score:40, invest:true },
+  '成都': { tier:'新一线', score:40, invest:true },
+  '长沙': { tier:'新一线', score:40, invest:true },
+  // 二线（10城/区）
+  '天津': { tier:'二线', score:35, invest:true },
+  '青岛': { tier:'二线', score:35, invest:true },
+  '郑州': { tier:'二线', score:35, invest:true },
+  '无锡': { tier:'二线', score:35, invest:true },
+  '宁波': { tier:'二线', score:35, invest:true },
+  '珠海': { tier:'二线', score:35, invest:true },
+  '东莞': { tier:'二线', score:35, invest:true },
+  '佛山': { tier:'二线', score:35, invest:true },
+  '厦门': { tier:'二线', score:35, invest:true },
+  '海南': { tier:'二线', score:35, invest:true },
+  '海口': { tier:'二线', score:35, invest:true },
+  '三亚': { tier:'二线', score:35, invest:true },
+  // 弱二线省会：其余省会城市
+  '哈尔滨': { tier:'弱二线省会', score:25, invest:false },
+  '长春': { tier:'弱二线省会', score:25, invest:false },
+  '沈阳': { tier:'弱二线省会', score:25, invest:false },
+  '呼和浩特': { tier:'弱二线省会', score:25, invest:false },
+  '石家庄': { tier:'弱二线省会', score:25, invest:false },
+  '太原': { tier:'弱二线省会', score:25, invest:false },
+  '济南': { tier:'弱二线省会', score:25, invest:false },
+  '南昌': { tier:'弱二线省会', score:25, invest:false },
+  '南宁': { tier:'弱二线省会', score:25, invest:false },
+  '贵阳': { tier:'弱二线省会', score:25, invest:false },
+  '昆明': { tier:'弱二线省会', score:25, invest:false }, // 注：原表未列昆明，归弱二线省会
+  '拉萨': { tier:'弱二线省会', score:25, invest:false },
+  '兰州': { tier:'弱二线省会', score:25, invest:false },
+  '西宁': { tier:'弱二线省会', score:25, invest:false },
+  '银川': { tier:'弱二线省会', score:25, invest:false },
+  '乌鲁木齐': { tier:'弱二线省会', score:25, invest:false },
+  // 常见强二线周边/非省会（三四线示例）
+  '烟台': { tier:'三四线', score:10, invest:false },
+  '嘉兴': { tier:'三四线', score:10, invest:false },
+  '南通': { tier:'三四线', score:10, invest:false },
+  '金华': { tier:'三四线', score:10, invest:false },
+  '惠州': { tier:'三四线', score:10, invest:false },
+  '徐州': { tier:'三四线', score:10, invest:false },
+  '绍兴': { tier:'三四线', score:10, invest:false },
+  '中山': { tier:'三四线', score:10, invest:false },
+  '台州': { tier:'三四线', score:10, invest:false },
+  '潍坊': { tier:'三四线', score:10, invest:false },
+  '保定': { tier:'三四线', score:10, invest:false },
+  '廊坊': { tier:'三四线', score:10, invest:false },
+  '常州': { tier:'三四线', score:10, invest:false },
+  '扬州': { tier:'三四线', score:10, invest:false },
+  '镇江': { tier:'三四线', score:10, invest:false },
+  '洛阳': { tier:'三四线', score:10, invest:false },
+  '临沂': { tier:'三四线', score:10, invest:false },
+  '唐山': { tier:'三四线', score:10, invest:false },
+  '包头': { tier:'三四线', score:10, invest:false },
+  '咸阳': { tier:'三四线', score:10, invest:false }
+};
+
+const provinceCapitals = new Set([
+  '北京','上海','天津','重庆', // 直辖市
+  '哈尔滨','长春','沈阳','呼和浩特','石家庄','太原','济南','郑州','南京','杭州','合肥','武汉','长沙','南昌','福州','广州','南宁','海口','成都','贵阳','昆明','拉萨','西安','兰州','西宁','银川','乌鲁木齐'
+]);
+
+function normalizeCity(city) {
+  if (!city) return null;
+  city = city.trim().replace(/[市]/g, '');
+  return city;
+}
+
+function resolveCity(city) {
+  const n = normalizeCity(city);
+  const base = cityDB[n] || (provinceCapitals.has(n) ? { tier:'弱二线省会', score:25, invest:false } : { tier:'三四线', score:10, invest:false });
+  const population = base.score >= 35 ? 'in' : 'out';
+  return { ...base, population };
+}
+
+const clamp = v => Math.max(0, Math.min(100, v));
+
+// 小区品质关键词（简单推断）
+const PREMIUM_WORDS = ['府','悦','玺','湾','里','城','郡','苑','号','庭','壹号','华府','悦府','公馆','国际','中心','天地','广场'];
+function communityLevel(community) {
+  if (!community) return 0;
+  const c = community;
+  let score = 0;
+  if (PREMIUM_WORDS.some(w => c.includes(w))) score += 2;
+  if (/花园|新村|小区|老|村|屯|胡同|里弄|大院|宿舍|公寓/.test(c)) score -= 1;
+  return Math.max(0, Math.min(4, score));
+}
+
+// 板块评分（30分）：基于城市能级 + 小区品质推断
+function evaluatePlate(cityInfo, community) {
+  const base = { '一线': 24, '新一线': 21, '二线': 18, '弱二线省会': 10, '三四线': 5 }[cityInfo.tier] || 5;
+  const quality = communityLevel(community) * 1.5; // 0~6
+  return clamp(Math.round(base + quality));
+}
+
+// 房子评分（20分）：基于房龄 + 小区品质推断
+function evaluateProperty(age, community) {
+  let ageScore;
+  if (age <= 2) ageScore = 20;
+  else if (age <= 5) ageScore = 18;
+  else if (age <= 10) ageScore = 15;
+  else if (age <= 15) ageScore = 12;
+  else if (age <= 20) ageScore = 8;
+  else if (age <= 25) ageScore = 5;
+  else ageScore = 3;
+  const quality = communityLevel(community) * 1.2; // 0~4.8
+  return clamp(Math.round(ageScore + quality));
+}
+
+// 双轴结论矩阵：增值轴(macro, 城市能级×人口流向) × 保值轴(loc, 高德真实配套/学区/交通)
+function twoAxisVerdict(macro, loc) {
+  const growth = macro >= 70 ? '高' : macro >= 50 ? '中' : '低';
+  const preserve = loc == null ? '未知' : (loc >= 65 ? '高' : loc >= 45 ? '中' : '低');
+  let verdict, cls, color;
+  if (loc == null) {
+    // 未提供小区、无法评位置保值力时，退回单轴（按城市能级）
+    if (macro >= 70) { verdict = '优质资产'; cls = 'kpi-good'; color = '#3B6D11'; }
+    else if (macro >= 50) { verdict = '中性资产'; cls = 'kpi-warn'; color = '#BA7517'; }
+    else { verdict = '负债倾向'; cls = 'kpi-bad'; color = '#A32D2D'; }
+  } else if (growth === '高' && preserve === '高') { verdict = '优质资产'; cls = 'kpi-good'; color = '#3B6D11'; }
+  else if (growth === '高' && preserve === '低') { verdict = '远郊接盘风险'; cls = 'kpi-bad'; color = '#A32D2D'; }
+  else if (growth === '低' && preserve === '高') { verdict = '稳健保值型'; cls = 'kpi-good'; color = '#3B6D11'; }
+  else if (growth === '低' && preserve === '低') { verdict = '负债倾向'; cls = 'kpi-bad'; color = '#A32D2D'; }
+  else { verdict = '中性资产'; cls = 'kpi-warn'; color = '#BA7517'; }
+  return { verdict, cls, color, growth, preserve };
+}
+
+function evaluate(ctx, amapInfo) {
+  const info = resolveCity(ctx.city);
+  const cityScore = info.score;
+  const macro = clamp(cityScore * 2);                 // 增值轴：城市能级 × 人口流向（0-100）
+  const loc = (amapInfo && amapInfo.verified && amapInfo.locScore && typeof amapInfo.locScore.total === 'number')
+    ? amapInfo.locScore.total : null;                 // 保值轴：高德真实配套/学区/交通（0-100）
+  const invest = cityScore >= 35;
+  // 已核验时统一用高德真实小区名做后续评估，避免用户原填名称与核验名称冲突
+  const displayCommunity = (amapInfo && amapInfo.verified) ? amapInfo.name : (ctx.community || '');
+  const plateScore = loc == null ? evaluatePlate(info, displayCommunity) : Math.round(loc / 100 * 30);
+  const propertyScore = evaluateProperty(ctx.age, displayCommunity);
+  const population = info.population;
+
+  const v = twoAxisVerdict(macro, loc);
+  const verdict = v.verdict, color = v.color, verdictClass = v.cls;
+
+  const ageScore = ctx.age <= 5 ? 95 : ctx.age <= 10 ? 85 : ctx.age <= 15 ? 72 : ctx.age <= 20 ? 58 : ctx.age <= 25 ? 42 : 28;
+  const growth = macro;                                  // 增值潜力展示值
+  const preserve = loc == null ? (invest ? 55 : 45) : loc; // 保值力展示值
+  let yieldScore, yieldVal = null, rentRatio = null, profitRate = null;
+  if (ctx.buy > 0 && ctx.rent > 0) {
+    const rr = ctx.rent * 12 / (ctx.buy * 10000) * 100;
+    yieldVal = rr;
+    rentRatio = (ctx.buy * 10000 / (ctx.rent * 12)).toFixed(0);
+    yieldScore = rr >= 4 ? 90 : rr >= 3 ? 75 : rr >= 2 ? 60 : rr >= 1 ? 45 : 30;
+  } else {
+    yieldScore = invest ? 45 : 55;
+  }
+  if (ctx.buy > 0 && ctx.cost > 0) {
+    profitRate = ((ctx.buy - ctx.cost) / ctx.cost * 100);
+  }
+  const agePenalty = ctx.age >= 25 ? 30 : ctx.age >= 20 ? 22 : ctx.age >= 15 ? 14 : ctx.age >= 10 ? 8 : ctx.age >= 5 ? 4 : 0;
+  // 流动性：以保值轴为主、增值轴为辅，再扣房龄折价
+  const liquid = clamp(((loc == null ? macro : loc) * 0.7 + macro * 0.3) - agePenalty);
+
+  return {
+    city: ctx.city, tier: info.tier, invest, cityScore, plateScore, propertyScore,
+    macro, loc, preserve, growth, ageScore, yieldScore, yieldVal, rentRatio, profitRate, liquid, yieldProvided: (ctx.buy > 0 && ctx.rent > 0),
+    verdict, color, verdictClass, population,
+    growthLevel: v.growth, preserveLevel: v.preserve
+  };
+}
+
+// ---------- 规则建议（兜底，同时输出结构化） ----------
+function buildAdvice(r, ctx) {
+  const weak = [], pro = [];
+  // —— 增值轴（宏观：城市能级 × 人口流向）——
+  if (r.macro >= 70) pro.push('所在城市属投资级（一线/新一线/强二线），人口与资金吸附力强，长期资产安全垫较厚');
+  if (r.population === 'in') pro.push('该城市为人口流入型，对住房需求与房价有持续支撑');
+  if (r.macro < 50) weak.push('城市能级有限，在 K 型分化中整体增值与资金吸附力弱，长期以居住属性为主');
+  if (r.population === 'out') weak.push('该城市为人口流出型，住房需求长期萎缩，房价持续承压');
+
+  // —— 保值轴（微观：位置/学区/交通，高德真实数据）——
+  if (r.loc != null) {
+    if (r.preserveLevel === '高') pro.push('周边学区/交通/配套真实可达（高德检索），本地保值与流动性扎实，属防御性硬资产');
+    else if (r.preserveLevel === '低') weak.push('所在位置偏离核心、学区与配套薄弱，即便城市能级高也难言保值，警惕远郊接盘');
+    else pro.push('位置条件中等，具备一定保值支撑');
+  }
+
+  // —— 双轴组合结论 ——
+  if (r.verdict === '稳健保值型') pro.push('城市整体增值有限，但本地段保值扎实，是典型的「保值不增值」防御性资产，宜长期持有而非追涨');
+  if (r.verdict === '远郊接盘风险') weak.push('虽处高能级城市，但地段远、配套弱、保值力不足，高位接盘后转手与保值都承压');
+
+  // —— 房龄 / 现金流 / 盈亏 ——
+  if (r.ageScore >= 70) pro.push('房龄较新，贷款、维护、转手都更从容');
+  if (r.ageScore < 55) weak.push('房龄偏老，贷款难度、维护成本和出手周期都在上升');
+  if (r.yieldVal !== null && r.yieldVal >= 4) pro.push('租金回报率约 ' + r.yieldVal.toFixed(1) + '%，现金流稳定，跑赢了多数理财');
+  else if (r.yieldVal !== null && r.yieldVal >= 2) pro.push('租金回报率约 ' + r.yieldVal.toFixed(1) + '%，持有期间有一定现金流');
+  else if (r.yieldVal !== null && r.yieldVal < 2) weak.push('租金回报率仅约 ' + r.yieldVal.toFixed(1) + '%，持有收益明显偏弱');
+  else if (r.yieldVal === null && r.yieldScore < 55) weak.push('所在城市租金回报基线偏低，靠租金覆盖持有成本较难');
+  if (r.profitRate !== null && r.profitRate >= 10) pro.push('当前估值较买入价浮盈约 ' + r.profitRate.toFixed(0) + '%，账面有安全边际');
+  if (r.profitRate !== null && r.profitRate <= -10) weak.push('当前估值较买入价浮亏约 ' + Math.abs(r.profitRate).toFixed(0) + '%，资产已缩水，需考虑止损');
+  else if (r.profitRate !== null && r.profitRate < 0) weak.push('当前估值较买入价略有浮亏，需关注后续市场走势');
+
+  // —— 高德真实配套引用（含中学）——
+  const _amap = ctx && ctx.amapInfo;
+  if (_amap && _amap.verified) {
+    const a = _amap.around;
+    const mid = (a.middle && a.middle.count) ? ('、中学 ' + a.middle.count + ' 所') : '';
+    if (a.traffic && a.traffic.nearest != null && a.traffic.nearest <= 600) pro.push('距最近交通站点约 ' + a.traffic.nearest + ' 米，通勤与转手都占优');
+    else if (a.traffic && a.traffic.count > 0) pro.push('周边 ' + a.traffic.count + ' 处地铁/公交站点，交通可达性较好');
+    if (a.school.count > 0) pro.push('2km 内 ' + a.school.count + ' 所小学' + mid + '，学区与陪读需求有支撑');
+    if (a.park.count > 0) pro.push('附近 ' + a.park.count + ' 个公园，宜居度较高');
+    if (a.hospital.nearest != null && a.hospital.nearest > 3000) weak.push('周边医疗资源较远（最近医院约 ' + a.hospital.nearest + ' 米），需留意');
+  }
+
+  let summary;
+  if (r.verdict === '优质资产') summary = '这套房整体算笔好资产——城市能级与本地段位置「双优」，核心优势在「' + strongPoint(r) + '」，建议继续持有。';
+  else if (r.verdict === '稳健保值型') summary = '这套房是典型的「保值不增值」防御性资产：城市增值空间有限，但本地段学区/配套扎实、抗跌能打，自住或长期持有都稳妥，别指望它大涨。';
+  else if (r.verdict === '远郊接盘风险') summary = '这套房要警惕——虽在城市能级高的城市，但位置远、配套弱、保值力不足，高位接盘后可能「涨的时候跟不上、跌的时候跑不掉」。';
+  else if (r.verdict === '中性资产') summary = '这套房处在「不上不下」的中间带，现金流尚可但升值与保值都谈不上突出，关键看后续市场与资金安排。';
+  else summary = '这套房已出现「负债」特征——城市能级低且位置无支撑，持有成本可能长期高于收益，需要认真考虑止损或置换。';
+
+  return { summary, pro, weak };
+}
+function strongPoint(r) {
+  const arr = [['城市能级', r.macro], ['保值力', r.preserve], ['增值潜力', r.growth], ['租金回报', r.yieldScore], ['流动性', r.liquid]].sort((a, b) => b[1] - a[1]);
+  return arr[0][0];
+}
+function buildTimeline(r) {
+  let s, m, l, sWatch, mWatch, lWatch;
+  if (r.verdict === '优质资产') {
+    s = '持有收租'; sWatch = '关注利率下行与板块土拍';
+    m = '优化结构'; mWatch = '把非核心资产置换到更优标的';
+    l = '核心传承'; lWatch = '核心资产可长期持有甚至作为传承';
+  } else if (r.verdict === '中性资产') {
+    s = '持有观望'; sWatch = '补齐买入价/月租做二次精算';
+    m = '择机优化'; mWatch = '视市场温度决定持有或小幅置换';
+    l = '非核出清'; lWatch = '非核心部分择机出清，回笼资金';
+  } else {
+    s = '尽快评估'; sWatch = '尽早挂牌评估，越早止损越主动';
+    m = '卖出置换'; mWatch = '优先置换为高能级城市核心资产';
+    l = '避免深套'; lWatch = '避免长期持有负现金流标的';
+  }
+  return [{ w: '短期（1 年）', act: s, watch: sWatch }, { w: '中期（3 年）', act: m, watch: mWatch }, { w: '长期', act: l, watch: lWatch }];
+}
+
+// ---------- 高德地图：小区核验 + 周边配套大数据 ----------
+const BUILTIN_AMAP_KEY = 'b902ad4bd796ae09a40faa431f55601b';        // 高德 Web端(JS API) Key（console.amap.com 申请，类型选「Web端(JSAPI)」）
+const BUILTIN_AMAP_SECURITY = '126616d3e7ca7d01999394b2e003f95f';   // 高德 安全密钥（与上面 Key 绑定，同页配置）
+let _amapLoaded = false;
+
+function loadAMap() {
+  return new Promise((resolve) => {
+    if (typeof AMap !== 'undefined') { _amapLoaded = true; resolve(true); return; }
+    if (!BUILTIN_AMAP_KEY || !BUILTIN_AMAP_SECURITY) { resolve(false); return; }
+    window._AMapSecurityConfig = { securityJsCode: BUILTIN_AMAP_SECURITY };
+    const s = document.createElement('script');
+    s.src = 'https://webapi.amap.com/maps?v=2.0&key=' + BUILTIN_AMAP_KEY + '&plugin=AMap.PlaceSearch,AMap.Geocoder';
+    s.onload = () => { _amapLoaded = true; resolve(true); };
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+function distMeters(a, b) {
+  const R = 6371000, toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const h = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function searchAround(loc, keyword, radius) {
+  return new Promise((resolve) => {
+    const ps = new AMap.PlaceSearch({ pageSize: 25 });
+    const center = new AMap.LngLat(loc.lng, loc.lat);
+    ps.searchNearBy(keyword, center, radius, (status, result) => {
+      if (status === 'complete' && result.poiList && result.poiList.pois.length) {
+        const pois = result.poiList.pois;
+        let nearest = Infinity, nearestName = '';
+        const list = [];
+        for (const p of pois) {
+          const d = distMeters(loc, p.location);
+          if (d < nearest) { nearest = d; nearestName = p.name; }
+          list.push({ name: p.name, distance: Math.round(d), address: p.address || '', adcode: p.adcode || '' });
+        }
+        list.sort((a, b) => a.distance - b.distance);
+        resolve({ count: pois.length, nearest: Math.round(nearest), nearestName, list: list.slice(0, 3) });
+      } else {
+        resolve({ count: 0, nearest: null, nearestName: '', list: [] });
+      }
+    });
+  });
+}
+
+// 从高德周边 POI 的 name/address 推断区县（高德主 POI 的 cityname/adname 经常为空）
+function inferDistrict(around) {
+  const sources = [around.hospital, around.school, around.middle, around.shop];
+  for (const cat of sources) {
+    if (!cat || !cat.list) continue;
+    for (const p of cat.list) {
+      const text = (p.name || '') + ' ' + (p.address || '');
+      const m = text.match(/([\u4e00-\u9fa5]{2,8}县)/);
+      if (m) return m[1];
+    }
+  }
+  for (const cat of sources) {
+    if (!cat || !cat.list) continue;
+    for (const p of cat.list) {
+      const text = (p.name || '') + ' ' + (p.address || '');
+      const matches = text.match(/([\u4e00-\u9fa5]{2,6}区)/g);
+      if (matches) {
+        for (const m of matches) {
+          const prefix = m.slice(0, -1);
+          if (!/(社|园|景|街|道|小|工|业|学|校|医|院|商|场)$/.test(prefix)) return m;
+        }
+      }
+    }
+  }
+  return '';
+}
+
+// 从高德周边 POI 的 name/address 反推真实城市（防止城市过滤失效时把别的城市小区抓回来）
+// 例：用户填「利川县」，但高德实际抓回「呼和浩特市玉泉区」的恒大绿洲 —— 周边学校/医院地址里会出现「呼和浩特市」
+function inferCity(around) {
+  const sources = [around.hospital, around.school, around.middle, around.shop, around.park, around.traffic];
+  const cnt = {};
+  for (const cat of sources) {
+    if (!cat || !cat.list) continue;
+    for (const p of cat.list) {
+      const text = (p.name || '') + ' ' + (p.address || '');
+      const m = text.match(/([\u4e00-\u9fa5]{2,8}市)/);
+      if (m) {
+        const c = m[1];
+        cnt[c] = (cnt[c] || 0) + 1;
+      }
+    }
+  }
+  // 取出现次数最多的城市名（多数配套集会指向同一真实城市）
+  let best = '', max = 0;
+  for (const c in cnt) if (cnt[c] > max) { max = cnt[c]; best = c; }
+  return best;
+}
+
+// 从周边 POI 的 adcode 反推真实「城市级代码」（adcode 前 4 位 = 地级市/州/盟）
+function inferAdcode(around) {
+  const sources = [around.hospital, around.school, around.middle, around.shop, around.park, around.traffic];
+  const cnt = {};
+  for (const cat of sources) {
+    if (!cat || !cat.list) continue;
+    for (const p of cat.list) {
+      const code = (p.adcode || '').slice(0, 4);
+      if (/^\d{4}$/.test(code)) cnt[code] = (cnt[code] || 0) + 1;
+    }
+  }
+  let best = '', max = 0;
+  for (const c in cnt) if (cnt[c] > max) { max = cnt[c]; best = c; }
+  return best;
+}
+
+// 用高德地理编码把用户填的城市解析成标准名 + adcode（用于跨城市强校验）
+// 例：「利川县」→ 高德会解析为「利川市」（湖北恩施州），adcode 前 4 位即城市代码
+function geocodeCity(city) {
+  return new Promise((resolve) => {
+    try {
+      const geo = new AMap.Geocoder();
+      const tryOnce = (q) => new Promise((res) => {
+        geo.getLocation(q, (status, result) => {
+          if (status === 'complete' && result.geocodes && result.geocodes.length) {
+            const g = result.geocodes[0];
+            const nm = (g.city && g.city !== '[]') ? g.city : (g.formattedAddress || q);
+            // level：高德返回的行政区划级别——「省/市/区县」放行，「乡镇/村庄」拒绝
+            const lv = g.level || '';
+            res({ adcode: g.adcode || '', name: nm, level: lv });
+          } else res(null);
+        });
+      });
+      // 先按原样编码；失败再去掉末尾「市县区县」重试（利川县→利川）
+      tryOnce(city).then(r => {
+        if (r) return resolve(r);
+        const q2 = city.replace(/[市县区县]$/, '');
+        if (q2 && q2 !== city) tryOnce(q2).then(resolve);
+        else resolve(null);
+      });
+    } catch (e) { resolve(null); }
+  });
+}
+
+// 判断 geocodeCity 返回的行政级别是否 >= 县级市（拒绝镇/乡/村）
+// level 取值：省、市、区县（含县/县级市/市辖区）、乡镇、村庄……
+function isCityLevel(geoResult) {
+  if (!geoResult || !geoResult.level) return false;
+  const lv = geoResult.level;
+  // 「乡镇」「村庄」及任何不含「省/市/区县」的级别一律拒绝
+  if (lv === '乡镇' || lv === '村庄') return false;
+  if (lv === '省' || lv === '市' || lv === '区县') return true;
+  // 兜底：level 为空或未知 → 拒绝，宁可误杀不错放
+  return false;
+}
+
+// 反向地理编码：用小区坐标反查真实城市/区县（高德主 POI 的 cityname/adcode 经常为空，
+// 但坐标永远有，这是判断「这个小区到底在哪个城市」最可靠的依据）
+function reverseGeocode(loc) {
+  return new Promise((resolve) => {
+    try {
+      const geo = new AMap.Geocoder();
+      geo.getAddress(new AMap.LngLat(loc.lng, loc.lat), (status, result) => {
+        if (status === 'complete' && result.regeocode) {
+          const comp = result.regeocode.addressComponent || {};
+          resolve({
+            adcode: comp.adcode || '',
+            city: comp.city && comp.city !== '[]' ? comp.city : '',
+            province: comp.province || '',
+            district: comp.district || ''
+          });
+        } else resolve(null);
+      });
+    } catch (e) { resolve(null); }
+  });
+}
+
+// 合并地铁站 + 公交站为「交通」，按距离取前 3
+function mergeTraffic(sub, bus) {
+  const list = [...sub.list, ...bus.list].sort((a, b) => a.distance - b.distance).slice(0, 3);
+  const count = sub.count + bus.count;
+  let nearest = sub.nearest, nearestName = sub.nearestName;
+  if (bus.nearest != null && (nearest == null || bus.nearest < nearest)) {
+    nearest = bus.nearest; nearestName = bus.nearestName;
+  }
+  return { count, nearest, nearestName, list };
+}
+
+// 城市/名称比对归一化
+function normCityCmp(c) { return (c || '').replace(/[省市区县]/g, '').replace(/\s/g, ''); }
+function normNameCmp(c) { return (c || '').replace(/[\s·•・.]/g, ''); }
+
+// 判断高德 POI 是否为住宅小区（避免把药房/商铺当成小区出报告）
+function isResidentialType(poi) {
+  const t = poi.type || '';
+  return /住宅|房地产|商务住宅/.test(t);
+}
+// 在检索结果中优先挑住宅小区类 POI（药房/商铺等非住宅排在后面）
+function pickBestCommunity(pois) {
+  if (!pois || !pois.length) return null;
+  const res = pois.find(p => isResidentialType(p));
+  return res || pois[0];
+}
+
+// 核验小区真实性并检索周边配套
+// 返回：{verified,name,...} | {verified:false} | {verified:false, poorMatch:true, candidatePoi, candidate, candidateType} | null（未启用）
+// forcePoi：用户已确认「就用这个位置」后，强制以该 POI 出报告，跳过住宅判定
+async function enrichWithAMap(ctx, forcePoi) {
+  const ok = await loadAMap();
+  if (!ok || !ctx.community) return null;
+
+  // 先把用户填的城市用高德地理编码标准化：拿到标准名 + adcode（城市级代码 = 前 4 位）
+  // 作用 1：纠正「利川县」→「利川市」这类非标准叫法；作用 2：给跨城市校验一个可靠基准
+  const ctxGeo = await geocodeCity(ctx.city);
+  const ctxCityCode = ctxGeo && /^\d{6}$/.test(ctxGeo.adcode) ? ctxGeo.adcode.slice(0, 4) : '';
+  if (ctxGeo && ctxGeo.name && normCityCmp(ctx.city) === normCityCmp(ctxGeo.name)) {
+    ctx.city = ctxGeo.name; // 仅当只是行政后缀差异（县/市/区）时归一化，避免改写到别的城市
+  }
+
+  // ★ 行政级别硬校验：仅允许县级市及以上（拒绝镇/乡/村）
+  //    镇/乡/村不是城市，搜不出可靠配套，出报告就是胡说八道
+  if (!ctxGeo) {
+    return { verified: false, notFound: true, reason: 'cityNotFound' };
+  }
+  if (ctxGeo.level === '乡镇' || ctxGeo.level === '村庄') {
+    // 高德对乱输/不存在的城市名也可能硬匹配一个乡镇——检查返回名与用户输入是否有关联
+    const uNorm = normCityCmp(ctx.city);
+    const gNorm = normCityCmp(ctxGeo.name || '');
+    if (gNorm && uNorm && gNorm !== uNorm && !gNorm.includes(uNorm) && !uNorm.includes(gNorm)) {
+      // 高德返回的城市名与用户输入完全对不上 → 这不是用户想查的真实乡镇，按「城市未找到」处理
+      return { verified: false, notFound: true, reason: 'cityNotFound' };
+    }
+    return { verified: false, notFound: true, reason: 'townLevel', cityLevel: ctxGeo.level };
+  }
+  // 地理编码返回了结果但级别为空或未知（非标准行政区域）→ 也拒绝
+  if (!isCityLevel(ctxGeo)) {
+    return { verified: false, notFound: true, reason: 'cityNotFound' };
+  }
+
+  let found = forcePoi || null;
+  if (!found) {
+    // 严格按「城市 + 小区名」检索；不再放宽到全国，避免把同名小区从别的城市抓回来
+    const ps = new AMap.PlaceSearch({ city: ctx.city, citylimit: true, pageSize: 5 });
+    found = await new Promise((resolve) => {
+      ps.search(ctx.community, (status, result) => {
+        if (status === 'complete' && result.poiList && result.poiList.pois.length) {
+          resolve(pickBestCommunity(result.poiList.pois));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+  if (!found) return { verified: false, notFound: true };
+
+  // 用户已「确认就用这个位置」时，跳过后续所有住宅/城市/名称判定，直接以该 POI 出报告
+  if (!forcePoi) {
+    // 非住宅类 POI（药房/商铺等）与「小区」差异大 → 交回用户确认，不擅自出报告
+    if (!isResidentialType(found)) {
+      return { verified: false, poorMatch: true, candidatePoi: found, candidate: found.name, candidateType: found.type, candidateCity: found.cityname || found.pname || '', candidateAdname: found.adname || '' };
+    }
+    // 名称与用户输入不一致（哪怕一字之差）→ 交回用户再次确认，不直接出报告（此判断无需周边配套，提前返回）
+    const uN = (ctx.community || '').trim(), aN = (found.name || '').trim();
+    if (uN && aN && normNameCmp(uN) !== normNameCmp(aN)) {
+      return { verified: false, nameMismatch: true, candidatePoi: found, candidate: found.name, candidateCity: found.cityname || found.pname || '', candidateAdname: found.adname || '' };
+    }
+  }
+
+  const loc = { lng: found.location.lng, lat: found.location.lat };
+  const [trafficRaw, school, hospital, shop, park, middle] = await Promise.all([
+    searchAround(loc, '地铁站', 2000),
+    searchAround(loc, '小学', 2000),
+    searchAround(loc, '医院', 2000),
+    searchAround(loc, '商场', 2000),
+    searchAround(loc, '公园', 2000),
+    searchAround(loc, '中学', 2000)
+  ]);
+  const bus = await searchAround(loc, '公交站', 1000);
+  const traffic = mergeTraffic(trafficRaw, bus);
+  const around = { traffic, school, hospital, shop, park, middle };
+  const locScore = scoreLocation(around);
+
+  // 城市一致性强校验（反向地理编码坐标 → 真实城市，最可靠）：
+  // 高德主 POI 的 cityname/adcode 经常为空，且「城市名填错/非标准名」会让 citylimit 失效、
+  // 退化为全国搜索，从而把别的城市同名小区抓回来（例：填「利川县」却抓回「呼和浩特市玉泉区」的恒大绿洲）。
+  // 用 found 坐标做反向地理编码拿到真实城市，与用户填写城市比对；不一致就停下来交用户修改（绝不擅自出报告）。
+  let foundGeo = null; // 反向地理编码得到的真实城市/区县（供城市校验与报告展示）
+  if (!forcePoi) {
+    foundGeo = await reverseGeocode(loc);
+    const foundCityName = foundGeo ? (foundGeo.city || foundGeo.province || '') : '';
+    const foundCityCode = foundGeo && /^\d{6}$/.test(foundGeo.adcode) ? foundGeo.adcode.slice(0, 4) : '';
+    const ctxCityCode = ctxGeo && /^\d{6}$/.test(ctxGeo.adcode) ? ctxGeo.adcode.slice(0, 4) : '';
+
+    const realCity = foundCityName || found.cityname || found.pname || (ctxGeo ? ctxGeo.name : '');
+    const cAd = (foundGeo && foundGeo.district) || found.adname || inferDistrict(around);
+
+    let mismatch = false;
+    if (ctxCityCode && foundCityCode) {
+      // 两边都解析到城市代码：精确比对，相同则直接通过（避免市/县层级差异误判）
+      if (ctxCityCode !== foundCityCode) mismatch = true;
+    } else {
+      // 任意一方无 adcode（地理编码失败等）：退回文字比对
+      const uC = normCityCmp(ctx.city), aC = normCityCmp(realCity);
+      if (uC && aC && uC !== aC && !aC.includes(uC) && !uC.includes(aC)) mismatch = true;
+    }
+    if (mismatch) {
+      return { verified: false, cityMismatch: true, notFound: true, candidateCity: realCity, candidateAdname: cAd, candidate: found.name };
+    }
+    // 把反向地理编码得到的真实城市/区县写回，保证报告行政区展示准确
+    if (foundGeo) {
+      found.cityname = foundGeo.city || foundGeo.province;
+      found.adname = foundGeo.district;
+    }
+  }
+
+  const cityDisplay = found.cityname || found.pname || (foundGeo ? (foundGeo.city || foundGeo.province) : '') || (ctxGeo ? ctxGeo.name : '');
+  const adDisplay = found.adname || (foundGeo ? foundGeo.district : '') || inferDistrict(around);
+  return { verified: true, name: found.name, address: found.address || '', location: loc, around, locScore, corrections: [], origCity: null, cityname: cityDisplay, adname: adDisplay, district: inferDistrict(around) };
+}
+
+// 位置保值力评分（0-100）：用高德真实配套/学区/交通计算，是「保值轴」的真实数据底座
+// 设计原则：县城核心学区房应拿高分（保值但不增值）；一线远郊应拿低分（增值潜力高但保值力弱）
+function scoreLocation(around) {
+  const school = around.school || { count: 0, nearest: null };
+  const middle = around.middle || { count: 0, nearest: null };
+  const traffic = around.traffic || around.subway || { count: 0, nearest: null };
+  const hospital = around.hospital || { count: 0, nearest: null };
+  const shop = around.shop || { count: 0, nearest: null };
+  const park = around.park || { count: 0, nearest: null };
+
+  // 1) 教育学区（40分）：小学 + 中学数量与最近距离，学区是中国保值第一驱动
+  const eduCount = (school.count || 0) + (middle.count || 0);
+  const eduNearest = Math.min(school.nearest != null ? school.nearest : Infinity, middle.nearest != null ? middle.nearest : Infinity);
+  let edu;
+  if (eduCount >= 4 && eduNearest <= 800) edu = 40;
+  else if (eduCount >= 2 && eduNearest <= 1200) edu = 34;
+  else if (eduCount >= 1 && eduNearest <= 1500) edu = 26;
+  else if (eduCount >= 1) edu = 20;
+  else edu = 8;
+
+  // 2) 交通可达（30分）：地铁/公交综合，最近距离决定分数
+  let transit;
+  if ((traffic.count || 0) > 0) {
+    const d = traffic.nearest;
+    transit = d <= 500 ? 30 : d <= 1000 ? 24 : d <= 2000 ? 16 : 10;
+  } else {
+    const s = shop.count || 0;
+    transit = 16 + (s >= 5 ? 10 : s >= 2 ? 6 : s >= 1 ? 3 : 0);
+  }
+
+  // 3) 生活配套（30分）：医院/商超/公园密度，体现宜居与本地流动性
+  const amen = (hospital.count || 0) + (shop.count || 0) + (park.count || 0);
+  let amenScore;
+  if (amen >= 12) amenScore = 30;
+  else if (amen >= 7) amenScore = 24;
+  else if (amen >= 3) amenScore = 18;
+  else if (amen >= 1) amenScore = 12;
+  else amenScore = 6;
+
+  const total = clamp(Math.round(edu + transit + amenScore));
+  return { total, edu, transit, amen: amenScore };
+}
+
+// ---------- DeepSeek 调用（结构化输出） ----------
+const BUILTIN_KEY = 'sk-ad8ae096893c4a5dbc24046d818015db';
+async function getDeepSeekAdvice(r, ctx) {
+  const key = BUILTIN_KEY;
+  if (!key) return null;
+  const url = 'https://api.deepseek.com/chat/completions';
+  const investStatement = '本工具采用双轴研判：增值潜力（由城市能级与人口流向决定）与保值力（由高德真实学区/交通/配套决定）。' +
+    '本次评估：增值潜力「' + r.growthLevel + '」、保值力「' + (r.loc == null ? '未评定（未提供小区）' : r.preserveLevel) + '」' +
+    (r.loc != null ? '（保值力数值 ' + r.loc + '/100，来源：高德真实检索）' : '') + '。';
+  let amapText = '';
+  const _ai = ctx.amapInfo;
+  if (_ai && _ai.verified) {
+    const a = _ai.around, f = d => (d.nearest != null ? d.nearest + ' 米' : '—');
+    amapText = '\n小区核验：已通过高德地图确认「' + _ai.name + '」真实存在，位于' + (_ai.address || ctx.city) + '。\n' +
+      '周边真实配套（2km 内，来自高德地图）：交通 ' + a.traffic.count + ' 处（最近 ' + f(a.traffic) + '）、小学 ' + a.school.count + ' 所（最近 ' + f(a.school) + '）、中学 ' + a.middle.count + ' 所（最近 ' + f(a.middle) + '）、医院 ' + a.hospital.count + ' 家（最近 ' + f(a.hospital) + '）、商场/商超 ' + a.shop.count + ' 处（最近 ' + f(a.shop) + '）、公园 ' + a.park.count + ' 个（最近 ' + f(a.park) + '）。\n' +
+      '系统据此计算的「位置保值力」评分为 ' + _ai.locScore.total + '/100（教育 ' + _ai.locScore.edu + ' + 交通 ' + _ai.locScore.transit + ' + 配套 ' + _ai.locScore.amen + '）。\n' +
+      '请在诊断中结合上述真实配套判断小区宜居性与流动性，并适当引用，不要虚构配套数据。';
+    if (_ai.corrections && _ai.corrections.length) {
+      amapText += '\n系统已根据高德真实数据对用户输入做了以下纠正：\n' + _ai.corrections.join('\n') + '\n请在诊断中使用纠正后的真实城市与小区名称，不要沿用用户原填的（可能错误的）城市。';
+    }
+  } else if (_ai && !_ai.verified) {
+    amapText = '\n注意：系统尝试通过高德地图核验小区「' + (ctx.community || '') + '」但未找到匹配，可能名称有误或过小未收录，以下分析不依赖小区级数据。';
+  }
+  const prompt = '你是一位资深房产顾问。当前中国房产市场呈明显的 K 型分化：一线、新一线及强二线城市核心资产仍能保值甚至升值；弱二线省会及三四线城市房产主要只有居住属性，基本不具备投资价值，长期面临人口流出、库存高企、折价难卖的风险。\n' +
+    '请基于以下「房产价值评估结论」，给用户一份真实、直接、不粉饰的房产资产诊断报告。写作顺序：先讲城市基本面，再讲小区/房产结论。要求：\n' +
+    '1. 用中文，语气务实、接地气、不官方、不说空话；\n' +
+    '2. 总字数控制在 400 字以内；\n' +
+    '3. 严格按照下面 7 个标签输出，每个标签独占一行，标签后紧跟内容：\n' +
+    '[结论] 用一句话给出核心判断\n' +
+    '[城市判定] 必须先对城市做基本面判断：城市能级、人口流向、经济/产业属性、城市定位，再明确该城市属于投资级还是居住级\n' +
+    '[优势] 列出 1-2 条核心优势，用 / 分隔\n' +
+    '[风险] 列出 1-2 条主要风险，用 / 分隔\n' +
+    '[短期] 1 年内建议：动作 + 关注信号\n' +
+    '[中期] 3 年左右建议：动作 + 关注信号\n' +
+    '[长期] 长期建议：动作 + 关注信号\n' +
+    '城市：' + ctx.city + '（' + r.tier + '）\n' +
+    '人口情况：' + (r.population === 'in' ? '流入（对房价有支撑）' : '流出（长期承压）') + '\n' +
+    '小区：' + ((ctx.amapInfo && ctx.amapInfo.verified) ? ctx.amapInfo.name : (ctx.community || '未提供')) + '\n' +
+    '房龄：' + (ctx.ageDefault ? '未填写（按 10 年估算）' : ctx.age + ' 年') + '\n' +
+    (ctx.buy ? ('当前估值：' + ctx.buy + ' 万元\n') : '') +
+    (ctx.cost ? ('买入价：' + ctx.cost + ' 万元\n') : '') +
+    (ctx.rent ? ('月租金：' + ctx.rent + ' 元/月\n') : '') +
+    '系统双轴初判：' + r.verdict + '（增值潜力「' + r.growthLevel + '」/ 保值力「' + (r.loc == null ? '未评定' : r.preserveLevel) + '」）。\n' +
+    investStatement + '\n' +
+    '重要原则：必须严格区分"增值"与"保值"两个概念——增值看城市能级与人口流向，保值看本地段学区/交通/配套。县城核心学区可"保值不增值"，一线远郊可"增值弱、保值更弱"。请勿仅凭城市能级就判定三四线房产为垃圾资产，也不要仅凭高能级城市就认定远郊有投资价值。' +
+    amapText;
+  const body = { model: 'deepseek-v4-flash', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 800 };
+  const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key };
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 20000);
+    const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const txt = data.choices && data.choices[0].message.content.trim();
+    return parseStructured(txt);
+  } catch (e) {
+    return null;
+  }
+}
+
+function parseStructured(txt) {
+  if (!txt) return null;
+  const out = { summary: '', cityJudge: '', pro: [], weak: [], timeline: [] };
+  const lines = txt.split(/\n/).map(x => x.trim()).filter(Boolean);
+  let current = null;
+  const map = { '结论': 'summary', '城市判定': 'cityJudge', '优势': 'pro', '风险': 'weak', '短期': 'short', '中期': 'mid', '长期': 'long' };
+  for (const line of lines) {
+    const m = line.match(/^\[?(结论|城市判定|优势|风险|短期|中期|长期)\]?(?:：|:)?\s*(.*)/);
+    if (m) {
+      current = map[m[1]];
+      const rest = m[2].trim();
+      if (current === 'summary' || current === 'cityJudge') out[current] = rest;
+      else if (rest) push(current, out, rest);
+    } else if (current) {
+      if (current === 'summary' || current === 'cityJudge') out[current] += ' ' + line;
+      else push(current, out, line);
+    }
+  }
+  if (out.summary || out.pro.length || out.weak.length) return out;
+  return { summary: txt, cityJudge: '', pro: [], weak: [], timeline: [] };
+}
+function push(key, out, val) {
+  if (key === 'short' || key === 'mid' || key === 'long') {
+    out.timeline.push({ key, val });
+  } else if (key === 'pro' || key === 'weak') {
+    const parts = val.split(/[/；;]/).map(x => x.trim()).filter(Boolean);
+    out[key].push(...parts);
+  }
+}
+
+// ---------- 渲染 ----------
+function kpiClass(v, type) {
+  if (type === 'yield') return v >= 4 ? 'kpi-good' : v >= 2.5 ? 'kpi-warn' : 'kpi-bad';
+  if (type === 'liquid') return v >= 70 ? 'kpi-good' : v >= 50 ? 'kpi-warn' : 'kpi-bad';
+  if (type === 'age') return v >= 70 ? 'kpi-good' : v >= 50 ? 'kpi-warn' : 'kpi-bad';
+  if (type === 'profit') return v >= 10 ? 'kpi-good' : v >= 0 ? 'kpi-warn' : 'kpi-bad';
+  return 'kpi-warn';
+}
+function kpiNote(v, type) {
+  if (type === 'yield') return v >= 4 ? '现金流较好' : v >= 2.5 ? '现金流一般' : '现金流偏弱';
+  if (type === 'liquid') return v >= 70 ? '出手较快' : v >= 50 ? '正常周期' : '出手较慢';
+  if (type === 'age') return v >= 70 ? '房龄新' : v >= 50 ? '房龄中等' : '房龄偏老';
+  if (type === 'profit') return v >= 10 ? '浮盈安全' : v >= 0 ? '基本持平' : '浮亏需止损';
+  return '';
+}
+function renderKPIs(r, ctx) {
+  const items = [];
+  items.push({ name: '租金回报率', val: r.yieldVal !== null ? r.yieldVal.toFixed(1) + '%' : '——', note: r.yieldVal !== null ? kpiNote(r.yieldVal, 'yield') : '未提供租金数据', cls: r.yieldVal !== null ? kpiClass(r.yieldVal, 'yield') : 'kpi-warn' });
+  items.push({ name: '租售比', val: r.rentRatio ? '1:' + r.rentRatio : '——', note: r.rentRatio ? '回本约 ' + r.rentRatio + ' 个月' : '未提供估值/租金', cls: r.rentRatio ? (r.yieldVal >= 4 ? 'kpi-good' : 'kpi-warn') : 'kpi-warn' });
+  items.push({ name: '人口情况', val: r.population === 'in' ? '流入' : '流出', note: r.population === 'in' ? '对房价有支撑' : '长期承压，谨慎持有', cls: r.population === 'in' ? 'kpi-good' : 'kpi-bad' });
+  items.push({ name: '城市能级', val: r.tier, note: r.cityScore >= 35 ? '投资级' : '仅居住', cls: r.cityScore >= 35 ? 'kpi-good' : r.cityScore >= 25 ? 'kpi-warn' : 'kpi-bad' });
+  if (r.profitRate !== null) {
+    items.push({ name: '盈亏状态', val: (r.profitRate >= 0 ? '+' : '') + r.profitRate.toFixed(0) + '%', note: kpiNote(r.profitRate, 'profit'), cls: kpiClass(r.profitRate, 'profit') });
+  }
+  document.getElementById('kpiGrid').innerHTML = items.map(i =>
+    '<div class="kpi-card ' + i.cls + '"><div class="name">' + i.name + '</div><div class="val">' + i.val + '</div><div class="note">' + i.note + '</div></div>'
+  ).join('');
+}
+
+function renderAmenity(ctx) {
+  const sec = document.getElementById('amenitySection');
+  const card = document.getElementById('amenityCard');
+  const ai = ctx.amapInfo;
+  if (ai && ai.verified) {
+    sec.style.display = 'block';
+    const a = ai.around;
+    const formatList = (d, unit, emptyHint) => {
+      if (!d || !d.count) return '<span style="color:#A89F91;font-size:12px;">' + (emptyHint || '未检索到') + '</span>';
+      const top = d.list.slice(0, 3).map(x => x.name + ' <span style="color:#888780;font-size:11px;">(' + x.distance + 'm)</span>').join(' · ');
+      const more = d.count > 3 ? '<span style="color:#888780;font-size:11px;">（共' + d.count + unit + '，展示最近3处）</span>' : '';
+      return '<span style="font-size:13px;color:#2C2C2A;">' + top + '</span>' + more;
+    };
+    // 合并小学 + 中学为「学校」展示
+    const eduList = (a.school && a.school.list ? a.school.list : []).concat(a.middle && a.middle.list ? a.middle.list : [])
+      .sort((x, y) => x.distance - y.distance).slice(0, 3);
+    const eduCount = (a.school && a.school.count || 0) + (a.middle && a.middle.count || 0);
+    const eduDisplay = eduCount > 0
+      ? '<span style="font-size:13px;color:#2C2C2A;">' + eduList.map(x => x.name + ' <span style="color:#888780;font-size:11px;">(' + x.distance + 'm)</span>').join(' · ') + '</span><span style="color:#888780;font-size:11px;">（共' + eduCount + '所，展示最近3所）</span>'
+      : '<span style="color:#A89F91;font-size:12px;">周边暂未检索到小学/中学</span>';
+    const row = (icon, label, html) => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1EFE8;font-size:13px;align-items:flex-start;"><span style="white-space:nowrap;flex-shrink:0;margin-right:10px;">' + icon + ' ' + label + '</span><span style="color:#5F5E5A;text-align:right;max-width:62%;">' + html + '</span></div>';
+    card.innerHTML =
+      '<div style="font-weight:500;color:#2C2C2A;margin-bottom:6px;">✓ 已通过高德地图核验：「' + ai.name + '」真实存在</div>' +
+      (ai.address ? '<div style="font-size:12px;color:#888780;margin-bottom:8px;">📍 ' + ai.address + '</div>' : '') +
+      (ai.district ? '<div style="font-size:12px;color:#888780;margin-bottom:8px;">🏛 行政区：' + ctx.city + '·' + ai.district + '</div>' : '') +
+      row('🚇', '交通（2km）', formatList(a.traffic, '处', '县城轨道覆盖较少，以公交/自驾为主')) +
+      row('🏫', '学校（2km）', eduDisplay) +
+      row('🏥', '医院（2km）', formatList(a.hospital, '家', '周边暂无登记医疗机构')) +
+      row('🛒', '商场/商超（2km）', formatList(a.shop, '处', '周边暂无大型商超')) +
+      row('🌳', '公园（2km）', formatList(a.park, '个', '周边公园绿地较少，属常态')) +
+      (ai.corrections && ai.corrections.length
+        ? '<div style="margin-top:10px;padding:8px 10px;background:#FFF7E6;border:1px solid #F2D9A0;border-radius:8px;">' +
+          '<div style="font-weight:600;color:#9A6B15;font-size:12px;margin-bottom:4px;">⚠ 信息校正（基于高德真实数据）</div>' +
+          ai.corrections.map(c => '<div style="font-size:12px;color:#7A5A1E;line-height:1.6;">• ' + c + '</div>').join('') +
+          '</div>'
+        : '') +
+      '<div style="font-size:11px;color:#888780;margin-top:8px;">数据来源：高德地图开放平台（真实地理检索）</div>' +
+      '<div style="font-size:11px;color:#888780;margin-top:4px;">房龄 / 估值 / 租金由您自填，高德未提供建成年代与成交数据，未自动校验。</div>';
+  } else if (ai && !ai.verified) {
+    sec.style.display = 'block';
+    card.innerHTML = '<div style="color:#A32D2D;font-size:13px;">⚠️ 未在高德地图找到「' + (ctx.community || '') + '」，可能名称有误或过小未收录。以下分析基于城市与房龄，未含小区级配套数据。</div>';
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
+function renderBase(r, ctx) {
+  const now = new Date();
+  document.getElementById('reportId').textContent = 'NO.' + now.toISOString().slice(0,10).replace(/-/g,'') + now.toTimeString().slice(0,2) + '001';
+  document.getElementById('reportDate').textContent = '生成时间：' + now.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+  const cityChip = '城市：' + r.city + '（' + r.tier + '）';
+  const popText = r.population === 'in' ? '人口流入' : '人口流出';
+  // 小区已核验时，报告顶部统一显示高德真实小区名，避免与用户原填名称冲突
+  const displayCommunity = (ctx.amapInfo && ctx.amapInfo.verified) ? ctx.amapInfo.name : (ctx.community || '未提供');
+  const chips = [
+    '<span class="report-chip ' + (r.cityScore >= 35 ? 'good' : 'warn') + '">' + cityChip + '</span>',
+    (popText ? '<span class="report-chip ' + (r.population === 'in' ? 'good' : 'warn') + '">' + popText + '</span>' : ''),
+    '<span class="report-chip">小区：' + displayCommunity + '</span>',
+    '<span class="report-chip">房龄：' + (ctx.ageDefault ? '未填 · 按10年估算' : ctx.age + ' 年') + '</span>',
+    (ctx.buy > 0 ? '<span class="report-chip">当前估值：' + ctx.buy + ' 万</span>' : ''),
+    (ctx.cost > 0 ? '<span class="report-chip">买入价：' + ctx.cost + ' 万</span>' : ''),
+    (ctx.rent > 0 ? '<span class="report-chip">月租：' + ctx.rent + ' 元</span>' : '')
+  ];
+  if (ctx.amapInfo && ctx.amapInfo.verified) chips.push('<span class="report-chip good">✓ 小区已核验</span>');
+  else if (ctx.amapInfo && !ctx.amapInfo.verified) chips.push('<span class="report-chip warn">⚠ 小区未找到</span>');
+  else if (!ctx.amapInfo && ctx.community) chips.push('<span class="report-chip">小区核验未启用</span>');
+  document.getElementById('chips').innerHTML = chips.filter(Boolean).join('');
+
+  const badge = document.getElementById('verdictBadge');
+  badge.textContent = r.verdict;
+  badge.style.background = r.color;
+
+  const rule = buildAdvice(r, ctx);
+  document.getElementById('verdictLine').textContent = rule.summary;
+  let verdictSub = '双轴研判：增值潜力「' + r.growthLevel + '」 · 保值力「' + (r.loc == null ? '未评定' : r.preserveLevel) + '」。';
+  if (r.verdict === '稳健保值型') verdictSub += '城市本身非投资级，但该小区位置保值力较强，属「保值不增值」防御型资产——自住或长期持有稳妥，别指望大涨。';
+  else verdictSub += '具体请结合智能专家团诊断与下方操作建议。';
+  document.getElementById('verdictSub').textContent = verdictSub;
+
+  // 投资属性判定卡
+  const investCard = document.getElementById('investCard');
+  const investTitle = document.getElementById('investTitle');
+  const investBody = document.getElementById('investBody');
+  const gTxt = r.growthLevel === '高' ? '高' : r.growthLevel === '中' ? '中' : (r.growthLevel === '低' ? '低' : '—');
+  const pTxt = r.preserveLevel === '高' ? '高' : r.preserveLevel === '中' ? '中' : (r.preserveLevel === '低' ? '低' : '未评定');
+  const pctG = Math.round(r.macro), pctP = (r.loc == null ? null : r.loc);
+  investCard.className = 'invest-card ' + (r.verdictClass === 'kpi-good' ? 'invest' : r.verdictClass === 'kpi-warn' ? 'reside' : 'danger');
+  investTitle.textContent = '双轴研判 · ' + r.verdict;
+  investBody.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:56px;color:#5F5E5A;">增值潜力</span>' +
+      '<div class="bar" style="flex:1;"><span style="width:' + pctG + '%;background:' + (pctG>=70?'#3B6D11':pctG>=50?'#BA7517':'#A32D2D') + '"></span></div>' +
+      '<span style="width:28px;font-weight:600;color:#3B6D11;">' + gTxt + '</span></div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:56px;color:#5F5E5A;">保值力</span>' +
+      '<div class="bar" style="flex:1;"><span style="width:' + (pctP==null?0:pctP) + '%;background:' + (pctP==null?'#999':pctP>=65?'#3B6D11':pctP>=45?'#BA7517':'#A32D2D') + '"></span></div>' +
+      '<span style="width:28px;font-weight:600;">' + pTxt + '</span></div>' +
+    '<div style="font-size:11px;color:#888780;line-height:1.6;margin-top:4px;">增值潜力由城市能级与人口流向决定；保值力由高德真实学区/交通/配套判定。县城核心学区可「保值不增值」，一线远郊可「增值弱、保值更弱」。</div>';
+
+  // 价值评定表（只展示状态，不展示后台分数）
+  const scoreRows = [
+    { name: '城市', weight: '50%', pct: r.cityScore / 50 * 100, status: r.cityScore >= 35 ? '投资级' : (r.cityScore >= 25 ? '居住级' : '非投资') },
+    { name: '位置', weight: '30%', pct: r.loc == null ? 0 : r.loc, status: r.loc == null ? '未评定' : (r.loc >= 65 ? '保值强' : r.loc >= 45 ? '保值中' : '保值弱') },
+    { name: '房子', weight: '20%', pct: r.propertyScore / 20 * 100, status: r.propertyScore >= 10 ? '合格' : '偏弱' }
+  ];
+  document.getElementById('scoreTable').innerHTML =
+    '<tr><th>评分项</th><th>权重</th><th>状态</th></tr>' +
+    scoreRows.map(row => {
+      const pct = row.pct.toFixed(0);
+      const barColor = pct >= 70 ? '#3B6D11' : pct >= 50 ? '#BA7517' : '#A32D2D';
+      return '<tr><td>' + row.name + '</td><td>' + row.weight + '</td><td><div class="bar"><span style="width:' + pct + '%;background:' + barColor + '"></span></div><div class="status">' + row.status + '</div></td></tr>';
+    }).join('');
+
+  renderKPIs(r, ctx);
+
+  const dims = [['增值潜力', r.growth], ['保值力', r.preserve], ['房龄状态', r.ageScore], ['租金回报', r.yieldScore, r.yieldProvided], ['流动性', r.liquid]];
+  document.getElementById('bars').innerHTML = dims.map(d => {
+    const label = d[0];
+    if (label === '租金回报' && d[2] === false) {
+      return '<div class="bar-row"><div class="bar-name">租金回报</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:0%;background:#C9C2B6"></div></div>' +
+        '<span class="bar-tag" style="color:#A89F91;background:#F1EFE8;">未填</span></div>';
+    }
+    const v = Math.round(d[1]);
+    const cls = v >= 70 ? 'tag-good' : v >= 50 ? 'tag-mid' : 'tag-bad';
+    const tag = v >= 70 ? '优' : v >= 50 ? '中' : '弱';
+    return '<div class="bar-row"><div class="bar-name">' + d[0] + '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + v + '%;background:' + (v >= 70 ? '#3B6D11' : v >= 50 ? '#BA7517' : '#A32D2D') + '"></div></div>' +
+      '<span class="bar-tag ' + cls + '">' + tag + '</span></div>';
+  }).join('');
+
+  renderAmenity(ctx);
+  renderAdvice(rule, null);
+  renderTimeline(buildTimeline(r));
+  renderTrend();
+
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('chatCard').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderAdvice(rule, ai) {
+  const summaryEl = document.getElementById('summaryCard');
+  const proSec = document.getElementById('proSection');
+  const riskSec = document.getElementById('riskSection');
+  const proList = document.getElementById('proList');
+  const riskList = document.getElementById('riskList');
+  const notice = document.getElementById('aiNotice');
+
+  const summary = ai && ai.summary ? ai.summary : rule.summary;
+  const cityJudge = ai && ai.cityJudge ? ai.cityJudge : '';
+  const pro = ai && ai.pro && ai.pro.length ? ai.pro : rule.pro;
+  const weak = ai && ai.weak && ai.weak.length ? ai.weak : rule.weak;
+  const aiTimeline = ai && ai.timeline && ai.timeline.length ? ai.timeline : null;
+
+  summaryEl.innerHTML = (cityJudge ? '<div style="margin-bottom:8px;font-weight:500;color:#2C2C2A;">' + cityJudge + '</div>' : '') + summary;
+  if (ai && aiTimeline) renderTimeline(aiTimeline.map((x, i) => {
+    const watch = x.val.split(/[，,]/).slice(1).join('，') || '关注市场变化';
+    const act = x.val.split(/[，,]/)[0];
+    return { w: ['短期（1 年）', '中期（3 年）', '长期'][i] || x.key, act, watch };
+  }));
+
+  if (pro.length) {
+    proSec.style.display = 'block';
+    proList.innerHTML = '<ul>' + pro.map(x => '<li>' + x + '</li>').join('') + '</ul>';
+  } else proSec.style.display = 'none';
+
+  if (weak.length) {
+    riskSec.style.display = 'block';
+    riskList.innerHTML = '<ul>' + weak.map(x => '<li>' + x + '</li>').join('') + '</ul>';
+  } else riskSec.style.display = 'none';
+
+  notice.textContent = ai ? '' : '⚠️ 智能专家团诊断失败，当前为规则建议。可刷新重试或检查网络。';
+}
+
+function renderTimeline(items) {
+  document.getElementById('opTable').innerHTML =
+    '<tr><th>周期</th><th>建议动作</th><th>关注信号</th></tr>' +
+    items.map(x => '<tr><td>' + x.w + '</td><td class="act">' + x.act + '</td><td class="watch">' + x.watch + '</td></tr>').join('');
+}
+
+function renderTrend() {
+  document.getElementById('trendCard').innerHTML =
+    '<p>未来房地产已不再是普涨时代，而是进入<strong>深度 K 型分化</strong>。</p>' +
+    '<div style="margin:10px 0;padding:10px 12px;border-left:3px solid #3B6D11;border-radius:0 8px 8px 0;background:#F4F8EF;">' +
+      '<div style="font-weight:600;color:#2C2C2A;margin-bottom:4px;">🔺 向上的一端</div>' +
+      '<div style="color:#5F5E5A;">核心城市、核心板块的<strong>优质改善盘</strong>，仍具备增值空间。背后有人口流入、产业支撑、配套兑现和政策倾斜，未来依然会被市场追捧。</div>' +
+    '</div>' +
+    '<div style="margin:10px 0;padding:10px 12px;border-left:3px solid #A32D2D;border-radius:0 8px 8px 0;background:#FBF2F2;">' +
+      '<div style="font-weight:600;color:#2C2C2A;margin-bottom:4px;">🔻 向下的一端</div>' +
+      '<div style="color:#5F5E5A;">普通刚需盘、老破小，最多只能勉强保值，大概率长期跑输通胀；三四线城市和远郊房产，流动性将持续承压，部分甚至逐步丧失交易价值。</div>' +
+    '</div>' +
+    '<p>这意味着一个根本性转变：未来市场只属于 <strong>「好房子」</strong>。</p>' +
+    '<p style="margin-top:8px;">所谓好房子，有四个标准：<span style="display:inline-block;margin:2px 4px 0 0;padding:2px 8px;background:#EAF1FB;border-radius:20px;font-size:12px;">改善型</span><span style="display:inline-block;margin:2px 4px 0 0;padding:2px 8px;background:#EAF1FB;border-radius:20px;font-size:12px;">品质高</span><span style="display:inline-block;margin:2px 4px 0 0;padding:2px 8px;background:#EAF1FB;border-radius:20px;font-size:12px;">配套优</span><span style="display:inline-block;margin:2px 4px 0 0;padding:2px 8px;background:#EAF1FB;border-radius:20px;font-size:12px;">有明确接盘人群</span>。只有这样的楼盘，才有流动性和升值机会。</p>' +
+    '<p style="margin-top:10px;">👉 <strong>买房逻辑彻底变了：</strong></p>' +
+    '<div style="margin:6px 0 0;padding:8px 12px;background:#F6F4ED;border-radius:8px;color:#5F5E5A;font-size:12.5px;line-height:1.9;">' +
+      '从 「有没有」 → 转向 「好不好」<br>从 「能不能住」 → 转向 「有没有人愿意接」</div>' +
+    '<p style="margin-top:10px;padding:8px 0;border-top:1px solid #E9E7DF;color:#2C2C2A;font-size:13px;line-height:1.8;">' +
+      '<strong>一句话总结：</strong>以前买房，买的是「一套房」；以后买房，买的是「一个可流通的优质资产」。</p>';
+}
+
+// ---------- 对话式流程 ----------
+const chatMsgs = document.getElementById('chatMsgs');
+const chatActions = document.getElementById('chatActions');
+const chatCard = document.getElementById('chatCard');
+
+function addMsg(role, text, typing) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  if (typing) b.innerHTML = '<span class="typing"><span></span><span></span><span></span></span>';
+  else b.textContent = text;
+  wrap.appendChild(b);
+  chatMsgs.appendChild(wrap);
+  chatCard.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return wrap;
+}
+
+function buildConfirmText(ctx) {
+  let s = '你提供的情况我记下了 👇\n';
+  s += '📍 城市：' + ctx.city + '\n';
+  s += '🏘 小区：' + (ctx.community || '未提供') + '\n';
+  s += '🏠 房龄：' + (ctx.ageDefault ? '未填写（专家团将按 10 年估算）' : ctx.age + ' 年') + '\n';
+  if (ctx.buy > 0) s += '💰 当前估值：' + ctx.buy + ' 万元\n';
+  if (ctx.cost > 0) s += '📥 买入价：' + ctx.cost + ' 万元\n';
+  if (ctx.rent > 0) s += '📤 月租：' + ctx.rent + ' 元/月\n';
+  s += '\n以上信息对吗？确认后我用智能专家团为你出一份专属报告 ✨';
+  return s;
+}
+
+async function startAnalysis(ctx) {
+  chatActions.style.display = 'none';
+  addMsg('user', '确认无误，开始分析 ✅');
+  const typingMsg = addMsg('bot', '', true);
+
+  // 先核验小区（可能纠正城市并重算），再评估
+  if (ctx.community) {
+    typingMsg.querySelector('.bubble').innerHTML = '🔍 正在核验小区真实性并检索周边配套…';
+    ctx.amapInfo = await enrichWithAMap(ctx);
+    // 高德命中的不是住宅小区（如药房/商铺）→ 交回用户确认或重输，不直接出报告
+    if (ctx.amapInfo && ctx.amapInfo.poorMatch) {
+      askCommunityConfirm(ctx, ctx.amapInfo, typingMsg, 'poorMatch');
+      return;
+    }
+    // 高德命中小区名称与用户输入不一致（哪怕一字之差）→ 交回用户再次确认，不直接出报告
+    if (ctx.amapInfo && ctx.amapInfo.nameMismatch) {
+      askCommunityConfirm(ctx, ctx.amapInfo, typingMsg, 'nameMismatch');
+      return;
+    }
+    // 高德命中城市与用户填写城市差异过大 → 不再按城市级分析，直接让用户确认/修改
+    if (ctx.amapInfo && ctx.amapInfo.cityMismatch) {
+      showCommunityNotFound(ctx, typingMsg, 'cityMismatch', ctx.amapInfo);
+      return;
+    }
+    // 城市/小区未找到 —— 区分原因给出不同提示
+    if (ctx.amapInfo && ctx.amapInfo.notFound) {
+      const reason = ctx.amapInfo.reason || 'notFound';
+      showCommunityNotFound(ctx, typingMsg, reason, ctx.amapInfo);
+      return;
+    }
+  }
+
+  await runDiagnosis(ctx, typingMsg);
+}
+
+async function runDiagnosis(ctx, typingMsg) {
+  const a = ctx.amapInfo;
+  typingMsg.querySelector('.bubble').innerHTML = a && a.verified
+    ? '✅ 已核验「' + a.name + '」，智能专家团诊断中…'
+    : '🧠 未配置小区核验，诊断中…';
+
+  const r = evaluate(ctx, a);
+
+  const ai = await getDeepSeekAdvice(r, ctx);
+  const rule = buildAdvice(r, ctx);
+
+  typingMsg.querySelector('.bubble').textContent = ai ? '✅ 诊断报告已生成，请查看 👇' : '⚠️ 已生成（规则建议）👇';
+  renderBase(r, ctx);
+  renderAdvice(rule, ai);
+  saveRecord(ctx); // 生成报告后自动记录本次查询（仅录入信息，不含结果）
+}
+
+// 高亮两字符串的差异部分（红色加粗），让用户一眼看到哪里不同
+function highlightDiff(text, other) {
+  if (!other || text === other) return text;
+  let pre = 0;
+  while (pre < text.length && pre < other.length && text[pre] === other[pre]) pre++;
+  let suf = 0;
+  while (suf < text.length - pre && suf < other.length - pre &&
+         text[text.length - 1 - suf] === other[other.length - 1 - suf]) suf++;
+  const mid = text.slice(pre, text.length - suf);
+  if (!mid) return text;
+  return text.slice(0, pre) + '<span style="color:#d32f2f;font-weight:700;">' + mid + '</span>' + text.slice(text.length - suf);
+}
+
+// 高德命中的 POI 与用户输入差异较大时，向用户说明并请其确认或重新输入
+// reason: 'poorMatch'（非住宅类，如药房/商铺） | 'nameMismatch'（小区名称不一致，哪怕一字之差）
+function askCommunityConfirm(ctx, info, typingMsg, reason) {
+  const city = (info.candidateCity || ctx.city || '').trim();
+  const adname = (info.candidateAdname || '').trim();
+  const userComm = highlightDiff(ctx.community, info.candidate);
+  const foundComm = highlightDiff(info.candidate, ctx.community);
+  const userLocation = ctx.city + '·' + userComm;
+  const foundLocation = city + (adname ? '·' + adname : '') + '·' + foundComm;
+  let body;
+  if (reason === 'nameMismatch') {
+    body = '你给的是「' + userLocation + '」，现在未找到你的小区，现在查到「' + foundLocation + '」，是你想要查找的吗？<br><br>如果是，我就继续生成报告；如果不是，请你及时修改正确的小区名称。';
+  } else {
+    body = '你给的是「' + userLocation + '」，现在未找到你的小区，现在查到「' + foundLocation + '」' +
+      (info.candidateType ? '（' + info.candidateType + '）' : '') +
+      '，与住宅小区差异较大。是你想要查找的吗？<br><br>如果是，我就继续生成报告；如果不是，请你及时修改正确的小区名称。';
+  }
+  typingMsg.querySelector('.bubble').innerHTML = body;
+  chatActions.style.display = 'flex';
+  const cb = document.getElementById('confirmBtn');
+  const mb = document.getElementById('modifyBtn');
+  const oldCb = cb.textContent, oldMb = mb.textContent;
+  cb.textContent = '是，继续生成报告';
+  mb.textContent = '否，修改小区名称';
+  cb.onclick = async () => {
+    cb.textContent = oldCb; mb.textContent = oldMb;
+    chatActions.style.display = 'none';
+    ctx.amapInfo = await enrichWithAMap(ctx, info.candidatePoi); // 用户已确认，强制以该位置出报告
+    if (ctx.amapInfo && ctx.amapInfo.verified) {
+      // 强制出报告时高德 POI 可能缺少 cityname/adname，用 nameMismatch 阶段已知信息补回
+      ctx.amapInfo.cityname = ctx.amapInfo.cityname || info.candidateCity || '';
+      ctx.amapInfo.adname = ctx.amapInfo.adname || info.candidateAdname || '';
+    }
+    await runDiagnosis(ctx, typingMsg);
+  };
+  mb.onclick = () => {
+    cb.textContent = oldCb; mb.textContent = oldMb;
+    chatCard.style.display = 'none';
+    document.getElementById('formCard').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+}
+
+// 未找到小区或城市不一致时，不再继续生成报告，直接提示用户修改
+function showCommunityNotFound(ctx, typingMsg, reason, info) {
+  let body;
+  if (reason === 'cityNotFound') {
+    body = '⚠️ 未检索到「' + ctx.city + '」，该名称不在高德行政城市数据库中。<br><br>本工具仅支持<strong>县城（县级市）以上</strong>的标准城市名称，乡镇/村庄不支持。请修改为标准城市名称后重新录入。';
+  } else if (reason === 'townLevel') {
+    body = '⚠️ 「' + ctx.city + '」属于乡镇级别，本工具仅支持<strong>县城（县级市）以上</strong>的行政城市。<br><br>乡镇地段无法获取准确的周边配套与城市能级数据，请改用所在县城或上级城市名称重新录入。';
+  } else if (reason === 'cityMismatch') {
+    const city = (info.candidateCity || '').trim();
+    const adname = (info.candidateAdname || '').trim();
+    const foundLocation = city + (adname ? '·' + adname : '');
+    body = '⚠️ 你提供的是「' + ctx.city + '·' + ctx.community + '」，但高德检索到同名/相似小区位于「' + foundLocation + '」，与你填写的城市不一致。<br><br>为确保房产判断准确，请检查城市或小区名称是否正确，修改后重新录入。';
+  } else {
+    body = '⚠️ 未找到「' + ctx.city + '·' + ctx.community + '」，请检查小区名称是否正确。如果是县城/村镇未收录小区，可尝试输入附近知名小区或简化名称。<br><br>请修改后重新录入，我们再继续生成报告。';
+  }
+  typingMsg.querySelector('.bubble').innerHTML = body;
+  chatActions.style.display = 'flex';
+  const cb = document.getElementById('confirmBtn');
+  const mb = document.getElementById('modifyBtn');
+  const oldCb = cb.textContent, oldMb = mb.textContent;
+  cb.textContent = '修改小区名称';
+  mb.textContent = '返回首页';
+  const back = () => {
+    cb.textContent = oldCb; mb.textContent = oldMb;
+    chatActions.style.display = 'none';
+    chatCard.style.display = 'none';
+    document.getElementById('formCard').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  cb.onclick = back;
+  mb.onclick = back;
+}
+
+// ---------- 查询记录（仅录入信息：时间/城市/小区/房龄/估值/买入/月租） ----------
+// 记录仅存本机 localStorage；若配置了 RECORD_ENDPOINT，会额外 POST 给中转服务（再由中转写腾讯文档/ima）
+const RECORD_ENDPOINT = ''; // 例：'https://your-server.example.com/api/record'；留空则仅本机保存
+const RECORD_KEY = 'fang_query_records';
+const RECORD_MAX = 200;
+
+function loadRecords() {
+  try { return JSON.parse(localStorage.getItem(RECORD_KEY) || '[]'); } catch (e) { return []; }
+}
+function updateRecCount() {
+  const el = document.getElementById('recCount');
+  if (el) el.textContent = loadRecords().length;
+}
+function saveRecord(ctx) {
+  const rec = {
+    time: new Date().toISOString(),
+    city: ctx.city || '',
+    community: ctx.community || '',
+    age: ctx.ageDefault ? '' : (ctx.age != null ? ctx.age : ''),
+    buy: ctx.buy || '',
+    cost: ctx.cost || '',
+    rent: ctx.rent || ''
+  };
+  const list = loadRecords();
+  list.unshift(rec);
+  while (list.length > RECORD_MAX) list.pop();
+  try { localStorage.setItem(RECORD_KEY, JSON.stringify(list)); } catch (e) {}
+  updateRecCount();
+  if (RECORD_ENDPOINT) {
+    fetch(RECORD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rec)
+    }).catch(() => {});
+  }
+}
+function fmtTime(iso) {
+  const d = new Date(iso);
+  const p = x => ('' + x).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function renderRecords() {
+  const list = loadRecords();
+  const el = document.getElementById('recordList');
+  if (!list.length) { el.innerHTML = '<div style="color:#888;padding:24px 0;text-align:center;">暂无查询记录</div>'; return; }
+  el.innerHTML = list.map(r => {
+    const sub = [
+      r.age !== '' ? ('房龄' + r.age + '年') : '',
+      r.buy ? ('估值' + r.buy + '万') : '',
+      r.cost ? ('买入' + r.cost + '万') : '',
+      r.rent ? (r.rent + '元/月') : ''
+    ].filter(Boolean).join(' · ');
+    return '<div style="padding:9px 2px;border-bottom:1px solid #ECEAE2;">' +
+      '<div style="font-weight:600;color:#2C2C2A;">' + fmtTime(r.time) + ' · ' + r.city + ' · ' + r.community + '</div>' +
+      (sub ? '<div style="color:#8A887F;font-size:12px;margin-top:2px;">' + sub + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+function buildCSV() {
+  const list = loadRecords();
+  const header = ['时间', '城市', '小区', '房龄(年)', '估值(万)', '买入价(万)', '月租(元)'];
+  const rows = list.map(r => [fmtTime(r.time), r.city, r.community, r.age, r.buy, r.cost, r.rent]);
+  return [header].concat(rows).map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+}
+function exportRecords() {
+  const list = loadRecords();
+  if (!list.length) { alert('暂无记录'); return; }
+  const mobile = /Mobi|Android|iPhone|iPad|iPod|MicroMessenger|HarmonyOS/i.test(navigator.userAgent);
+  if (mobile) {
+    // 移动端无 download 支持：展示文本供长按复制
+    document.getElementById('recordList').style.display = 'none';
+    document.getElementById('recordExportText').style.display = 'block';
+    document.getElementById('recText').value = buildCSV();
+    return;
+  }
+  const blob = new Blob(['\ufeff' + buildCSV()], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '房产查询记录_' + fmtTime(new Date().toISOString()).replace(/[: ]/g, '-') + '.csv';
+  a.click();
+}
+document.getElementById('openRecords').addEventListener('click', () => {
+  document.getElementById('recordList').style.display = 'block';
+  document.getElementById('recordExportText').style.display = 'none';
+  renderRecords();
+  document.getElementById('recordModal').classList.add('show');
+});
+document.getElementById('closeRecordModal').addEventListener('click', () => {
+  document.getElementById('recordModal').classList.remove('show');
+});
+document.getElementById('exportRecords').addEventListener('click', exportRecords);
+document.getElementById('clearRecords').addEventListener('click', () => {
+  if (confirm('确定清空本机所有查询记录？此操作不可恢复。')) {
+    localStorage.removeItem(RECORD_KEY);
+    updateRecCount();
+    renderRecords();
+  }
+});
+updateRecCount();
+
+// ---------- 初始化 ----------
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const city = document.getElementById('city').value.trim();
+  const community = document.getElementById('community').value.trim();
+  const ageInput = document.getElementById('age').value;
+  const age = ageInput ? parseFloat(ageInput) : NaN;
+  const buy = parseFloat(document.getElementById('buy').value) || 0;
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const rent = parseFloat(document.getElementById('rent').value) || 0;
+  const hint = document.getElementById('formHint');
+  if (!city) { hint.textContent = '请先填写所在城市'; hint.style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (!community) { hint.textContent = '请先填写小区名称'; hint.style.display = 'block'; window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  hint.style.display = 'none';
+
+  const ctx = { city, community, age, ageProvided: !isNaN(age) && age >= 0, buy, cost, rent };
+  if (!ctx.ageProvided) { ctx.age = 10; ctx.ageDefault = true; }
+  else { ctx.ageDefault = false; }
+
+  document.getElementById('formCard').style.display = 'none';
+  chatCard.style.display = 'block';
+  chatMsgs.innerHTML = '';
+  chatActions.style.display = 'flex';
+  addMsg('bot', buildConfirmText(ctx));
+
+  document.getElementById('confirmBtn').onclick = () => startAnalysis(ctx);
+  document.getElementById('modifyBtn').onclick = () => {
+    chatCard.style.display = 'none';
+    document.getElementById('formCard').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+});
+
+document.getElementById('restart').addEventListener('click', () => {
+  document.getElementById('result').style.display = 'none';
+  chatCard.style.display = 'none';
+  document.getElementById('formCard').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+const isMobile = isWechat
+  || /Mobi|Android|iPhone|iPad|iPod|Windows Phone|HarmonyOS/i.test(navigator.userAgent)
+  || ('ontouchstart' in window && Math.min(window.innerWidth, window.innerHeight) < 900);
+
+function openWechatTip() {
+  document.getElementById('wtTitle').textContent = '正在生成图片…';
+  document.getElementById('wtLoading').style.display = 'block';
+  document.getElementById('wtImgWrap').style.display = 'none';
+  document.getElementById('wtFallback').style.display = 'none';
+  document.getElementById('wechatTip').classList.add('show');
+}
+function showWechatFallback() {
+  document.getElementById('wtTitle').textContent = '手机保存方式';
+  document.getElementById('wtLoading').style.display = 'none';
+  document.getElementById('wtImgWrap').style.display = 'none';
+  document.getElementById('wtFallback').style.display = 'block';
+}
+document.getElementById('closeWechatTip').addEventListener('click', () => {
+  document.getElementById('wechatTip').classList.remove('show');
+});
+
+async function genCanvas() {
+  const el = document.getElementById('result');
+  const scale = isMobile ? 1.5 : 2;
+  const task = html2canvas(el, { scale: scale, useCORS: true, backgroundColor: '#F1EFE8', logging: false });
+  // 超时兜底：移动端 html2canvas 偶发卡死，25 秒未完成则走截图引导
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 25000));
+  return Promise.race([task, timeout]);
+}
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  // 立即反馈，确认点击已响应（也用于判断是否加载到新代码）
+  const btn = document.getElementById('saveBtn');
+  const oldText = btn.textContent;
+  btn.textContent = '生成中…';
+
+  if (!window.html2canvas) { btn.textContent = oldText; openWechatTip(); showWechatFallback(); return; }
+
+  // 移动端（含微信、手机自带浏览器）：生成图片后弹窗，引导长按保存 / 截图
+  if (isMobile) {
+    openWechatTip();
+    btn.textContent = oldText;
+    try {
+      const canvas = await genCanvas();
+      document.getElementById('wtImg').src = canvas.toDataURL('image/png');
+      document.getElementById('wtTitle').textContent = isWechat ? '长按图片保存到相册' : '长按图片保存 · 或截图收藏';
+      document.getElementById('wtLoading').style.display = 'none';
+      document.getElementById('wtImgWrap').style.display = 'block';
+    } catch (e) {
+      showWechatFallback();
+    }
+    return;
+  }
+
+  // 桌面端：直接下载
+  btn.textContent = '正在生成图片…';
+  btn.disabled = true;
+  try {
+    const canvas = await genCanvas();
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = '房产资产体检报告_' + document.getElementById('reportId').textContent + '.png';
+    link.click();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+  btn.textContent = oldText;
+  btn.disabled = false;
+});
+</script>
+
+</body>
+</html>
