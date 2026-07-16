@@ -967,8 +967,10 @@ function scoreLocation(around) {
 
 // ---------- DeepSeek 调用（结构化输出 + 代理安全模式） ----------
 // DS_PROXY_URL：Vercel 代理，Key 只活在服务器端，零泄露
-// 生产 URL：https://house-asset-ds-proxy.vercel.app/api（需在 Vercel 控制台 Promote 部署后生效）
+// 生产 URL：https://house-asset-ds-proxy.vercel.app/api
 const DS_PROXY_URL = 'https://house-asset-ds-proxy-4qpq7kqg0-wabaoyis-projects.vercel.app/api';
+// 共享 Token：与 Vercel 代理 PROXY_TOKEN 环境变量一致，拦截滥用
+const DS_PROXY_TOKEN = 'dc6e20a8561a3876c63535c971d5bacfd5449866134b1cf2a28698a15789513c';
 const BUILTIN_KEY = 'sk-ad8ae096893c4a5dbc24046d818015db'; // 直连兜底Key（代理就绪后可清空）
 
 async function getDeepSeekAdvice(r, ctx) {
@@ -1017,7 +1019,8 @@ async function getDeepSeekAdvice(r, ctx) {
     amapText;
   const body = { model: 'deepseek-v4-flash', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 800 };
   const headers = { 'Content-Type': 'application/json' };
-  if (!useProxy) headers.Authorization = 'Bearer ' + BUILTIN_KEY;  // 代理模式零 Key；直连模式仍带 Key
+  if (useProxy) headers['X-Proxy-Token'] = DS_PROXY_TOKEN;  // 代理模式：带共享 Token 验证
+  else headers.Authorization = 'Bearer ' + BUILTIN_KEY;      // 直连模式：直带 Key
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
