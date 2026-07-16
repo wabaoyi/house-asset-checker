@@ -312,9 +312,7 @@
       <button class="cta-solid" id="restart">重新体验</button>
     </div>
     <div class="disclaimer" style="background:#FFF8E7;border-left:3px solid #E5A000;padding:10px 12px;border-radius:6px;font-size:11px;line-height:1.6;color:#8A6D1B;">
-      <strong>⚠️ 数据时效性提醒</strong><br>
-      城市能级、房价行情基于评分模型 + AI 常识估算。<strong>非实时交易数据</strong>，不可作为精准估值依据。
-      房地产买卖决策与资产配置，请结合专业经纪人意见和实地调研综合判断。
+      <strong>⚠️ 数据非实时</strong>·城市能级与房价均为模型估算，不作为估值依据。
     </div>
   </div>
 </div>
@@ -1266,7 +1264,7 @@ function renderAdvice(rule, ai) {
     riskList.innerHTML = '<ul>' + weak.map(x => '<li>' + x + '</li>').join('') + '</ul>';
   } else riskSec.style.display = 'none';
 
-  notice.textContent = ai ? '' : '⚠️ 智能专家团诊断失败，当前为规则建议。可刷新重试或检查网络。';
+  notice.textContent = '';
 }
 
 function renderTimeline(items) {
