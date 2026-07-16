@@ -311,8 +311,10 @@
       <button class="cta-ghost" id="saveBtn">一键保存报告</button>
       <button class="cta-solid" id="restart">重新体验</button>
     </div>
-    <div class="disclaimer">
-      本结果为智能专家团初步体检，城市能级、房价行情等基于评分表与模型推理估算，非实时交易数据或精准估值，卖留决策与资产配置请咨询助理老师。
+    <div class="disclaimer" style="background:#FFF8E7;border-left:3px solid #E5A000;padding:10px 12px;border-radius:6px;font-size:11px;line-height:1.6;color:#8A6D1B;">
+      <strong>⚠️ 数据时效性提醒</strong><br>
+      城市能级、房价行情基于评分模型 + AI 常识估算。<strong>非实时交易数据</strong>，不可作为精准估值依据。
+      房地产买卖决策与资产配置，请结合专业经纪人意见和实地调研综合判断。
     </div>
   </div>
 </div>
@@ -999,8 +1001,8 @@ async function getDeepSeekAdvice(r, ctx) {
     '3. 严格按照下面 7 个标签输出，每个标签独占一行，标签后紧跟内容：\n' +
     '[结论] 用一句话给出核心判断\n' +
     '[城市判定] 必须先对城市做基本面判断：城市能级、人口流向、经济/产业属性、城市定位，再明确该城市属于投资级还是居住级\n' +
-    '[优势] 列出 1-2 条核心优势，用 / 分隔\n' +
-    '[风险] 列出 1-2 条主要风险，用 / 分隔\n' +
+    '[优势] 列出 2-3 条核心优势，每条独占一行，以 - 开头，每条 15 字以内\n' +
+    '[风险] 列出 2-3 条主要风险，每条独占一行，以 - 开头，每条 15 字以内\n' +
     '[短期] 1 年内建议：动作 + 关注信号\n' +
     '[中期] 3 年左右建议：动作 + 关注信号\n' +
     '[长期] 长期建议：动作 + 关注信号\n' +
@@ -1057,7 +1059,8 @@ function push(key, out, val) {
   if (key === 'short' || key === 'mid' || key === 'long') {
     out.timeline.push({ key, val });
   } else if (key === 'pro' || key === 'weak') {
-    const parts = val.split(/[/；;]/).map(x => x.trim()).filter(Boolean);
+    // 分割符：/ / ； / ; / 换行后的新 bullet
+    const parts = val.split(/[/；；;]/).map(x => x.trim().replace(/^[-•]\s*/, '')).filter(Boolean);
     out[key].push(...parts);
   }
 }
