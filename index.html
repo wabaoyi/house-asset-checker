@@ -132,10 +132,15 @@
   .list-card li { margin-bottom: 6px; color: #444441; line-height: 1.6; }
   .list-card li:last-child { margin-bottom: 0; }
 
-  .op-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .op-table th { text-align: left; font-weight: 500; color: #5F5E5A; padding: 8px 10px; background: #F1EFE8; border-bottom: 1px solid #E9E7DF; }
-  .op-table td { padding: 10px; border-bottom: 1px solid #F1EFE8; vertical-align: top; }
-  .op-table td:first-child { width: 70px; font-weight: 500; color: #2C2C2A; }
+  .op-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  .op-table th { text-align: left; font-weight: 500; color: #5F5E5A; padding: 8px 6px; background: #F1EFE8; border-bottom: 1px solid #E9E7DF; font-size: 11px; }
+  .op-table th:first-child { width: 52px; }
+  .op-table td { padding: 9px 6px; border-bottom: 1px solid #F1EFE8; vertical-align: top; word-break: break-word; }
+  .op-table .tl-period { width: 52px; font-weight: 600; color: #2C2C2A; font-size: 11px; line-height: 1.4; }
+  .op-table .tl-act { color: #2C2C2A; font-weight: 600; font-size: 12px; line-height: 1.45; }
+  .op-table .tl-watch { color: #96938C; font-size: 10px; line-height: 1.4; margin-top: 3px; }
+  .op-table .tl-empty { color: #C9C2B6; }
+  /* 旧样式保留兼容 */
   .op-table .act { color: #185FA5; font-weight: 500; }
   .op-table .watch { color: #888780; }
 
@@ -587,21 +592,37 @@ function strongPoint(r) {
   return arr[0][0];
 }
 function buildTimeline(r) {
-  let s, m, l, sWatch, mWatch, lWatch;
-  if (r.verdict === '优质资产') {
-    s = '持有收租'; sWatch = '关注利率下行与板块土拍';
-    m = '优化结构'; mWatch = '把非核心资产置换到更优标的';
-    l = '核心传承'; lWatch = '核心资产可长期持有甚至作为传承';
-  } else if (r.verdict === '中性资产') {
-    s = '持有观望'; sWatch = '补齐买入价/月租做二次精算';
-    m = '择机优化'; mWatch = '视市场温度决定持有或小幅置换';
-    l = '非核出清'; lWatch = '非核心部分择机出清，回笼资金';
-  } else {
-    s = '尽快评估'; sWatch = '尽早挂牌评估，越早止损越主动';
-    m = '卖出置换'; mWatch = '优先置换为高能级城市核心资产';
-    l = '避免深套'; lWatch = '避免长期持有负现金流标的';
-  }
-  return [{ w: '短期（1 年）', act: s, watch: sWatch }, { w: '中期（3 年）', act: m, watch: mWatch }, { w: '长期', act: l, watch: lWatch }];
+  // 按裁决归为三类：good=优质 / mid=中性·稳健保值 / bad=远郊·负债
+  let cat;
+  if (r.verdict === '优质资产') cat = 'good';
+  else if (r.verdict === '中性资产' || r.verdict === '稳健保值型') cat = 'mid';
+  else cat = 'bad';
+
+  const T = {
+    good: {
+      short: { invest: ['持有收租', '关注利率与板块土拍'], live: ['安心自住', '关注学区划片变动'], upgrade: ['锁定核心地段', '关注改善盘入市节奏'] },
+      mid: { invest: ['优化结构', '非核资产换更优标的'], live: ['持有为主', '关注房龄与维护成本'], upgrade: ['择优置换', '关注价差与税费窗口'] },
+      long: { invest: ['核心传承', '长期持有甚至传承'], live: ['长期自住', '关注片区规划兑现'], upgrade: ['一步到位', '关注顶端产品稀缺性'] },
+    },
+    mid: {
+      short: { invest: ['持有观望', '补齐买入价再精算'], live: ['安心自住', '关注月供承受力'], upgrade: ['谨慎出手', '关注新盘性价比'] },
+      mid: { invest: ['择机优化', '视市场温度小幅置换'], live: ['持有为主', '关注配套兑现进度'], upgrade: ['等价差合适再动', '关注置换成本'] },
+      long: { invest: ['非核出清', '择机回笼资金'], live: ['自住无碍', '关注片区人口趋势'], upgrade: ['置换到更优城市', '关注高能级核心资产'] },
+    },
+    bad: {
+      short: { invest: ['尽快评估', '越早止损越主动'], live: ['自住可续', '关注持有成本变化'], upgrade: ['优先卖出', '关注挂牌去化速度'] },
+      mid: { invest: ['卖出置换', '换高能级城市核心'], live: ['做置换准备', '关注本地房价走势'], upgrade: ['坚决置换', '关注资金回笼节奏'] },
+      long: { invest: ['避免深套', '勿长持负现金流'], live: ['长期需谨慎', '关注人口与产业外流'], upgrade: ['转向核心资产', '关注保值力更强标的'] },
+    },
+  };
+  const src = T[cat];
+  const label = { short: '短期 · 1年', mid: '中期 · 3年', long: '长期' };
+  return ['short', 'mid', 'long'].map(k => ({
+    w: label[k],
+    invest: { act: src[k].invest[0], watch: src[k].invest[1] },
+    live: { act: src[k].live[0], watch: src[k].live[1] },
+    upgrade: { act: src[k].upgrade[0], watch: src[k].upgrade[1] },
+  }));
 }
 
 // ---------- 高德地图：小区核验 + 周边配套大数据 ----------
@@ -1001,9 +1022,18 @@ async function getDeepSeekAdvice(r, ctx) {
     '[城市判定] 必须先对城市做基本面判断：城市能级、人口流向、经济/产业属性、城市定位，再明确该城市属于投资级还是居住级\n' +
     '[优势] 列出 2-3 条核心优势，每条独占一行，以 - 开头，每条 15 字以内\n' +
     '[风险] 列出 2-3 条主要风险，每条独占一行，以 - 开头，每条 15 字以内\n' +
-    '[短期] 1 年内建议：动作 + 关注信号。请分场景给出：投资型买家怎么做 / 自住刚需怎么做 / 改善置换怎么做\n' +
-    '[中期] 3 年左右建议：动作 + 关注信号。同上，分投资/自住/改善三种场景\n' +
-    '[长期] 长期建议：动作 + 关注信号。同上，分投资/自住/改善三种场景\n' +
+    '[短期] 1 年内建议。必须严格分三行输出，每行格式为「场景：动作 / 关注信号」，动作 12 字以内、关注信号 12 字以内：\n' +
+    '投资买家：动作 / 关注信号\n' +
+    '自住刚需：动作 / 关注信号\n' +
+    '改善置换：动作 / 关注信号\n' +
+    '[中期] 3 年左右建议。同样严格分三行，格式同上：\n' +
+    '投资买家：动作 / 关注信号\n' +
+    '自住刚需：动作 / 关注信号\n' +
+    '改善置换：动作 / 关注信号\n' +
+    '[长期] 长期建议。同样严格分三行，格式同上：\n' +
+    '投资买家：动作 / 关注信号\n' +
+    '自住刚需：动作 / 关注信号\n' +
+    '改善置换：动作 / 关注信号\n' +
     '城市：' + ctx.city + '（' + r.tier + '）\n' +
     '人口情况：' + (r.population === 'in' ? '流入（对房价有支撑）' : '流出（长期承压）') + '\n' +
     '小区：' + ((ctx.amapInfo && ctx.amapInfo.verified) ? ctx.amapInfo.name : (ctx.community || '未提供')) + '\n' +
@@ -1061,7 +1091,21 @@ function parseStructured(txt) {
 }
 function push(key, out, val) {
   if (key === 'short' || key === 'mid' || key === 'long') {
-    out.timeline.push({ key, val });
+    // 时间表每行应为「场景：动作 / 关注信号」，逐行收进对应周期
+    // 场景前缀去掉可能的 - • 序号，兼容「投资买家/投资型买家/投资」「自住刚需/自住/刚需」「改善置换/改善/置换」
+    const cleaned = val.replace(/^[-•·\d.、\s]+/, '');
+    const m = cleaned.match(/^(投资(?:型|买家)?|自住(?:刚需)?|刚需|改善(?:置换)?|置换)\s*[：:]\s*(.*)$/);
+    if (!m) return; // 无场景前缀的杂行直接丢弃，避免污染表格
+    let scene = 'live';
+    if (/投资/.test(m[1])) scene = 'invest';
+    else if (/改善|置换/.test(m[1])) scene = 'upgrade';
+    else scene = 'live';
+    const rest = m[2].trim();
+    if (!rest) return;
+    const sp = rest.split(/[/／|｜]/);
+    const act = (sp[0] || '').trim();
+    const watch = sp.slice(1).join('/').trim();
+    out.timeline.push({ key, scene, act, watch });
   } else if (key === 'pro' || key === 'weak') {
     // 分割符：/ / ； / ; / 换行后的新 bullet
     const parts = val.split(/[/；；;]/).map(x => x.trim().replace(/^[-•]\s*/, '')).filter(Boolean);
@@ -1254,11 +1298,7 @@ function renderAdvice(rule, ai) {
   const aiTimeline = ai && ai.timeline && ai.timeline.length ? ai.timeline : null;
 
   summaryEl.innerHTML = (cityJudge ? '<div style="margin-bottom:8px;font-weight:500;color:#2C2C2A;">' + cityJudge + '</div>' : '') + summary;
-  if (ai && aiTimeline) renderTimeline(aiTimeline.map((x, i) => {
-    const watch = x.val.split(/[，,]/).slice(1).join('，') || '关注市场变化';
-    const act = x.val.split(/[，,]/)[0];
-    return { w: ['短期（1 年）', '中期（3 年）', '长期'][i] || x.key, act, watch };
-  }));
+  if (ai && aiTimeline) renderTimeline(groupTimeline(aiTimeline));
 
   if (pro.length) {
     proSec.style.display = 'block';
@@ -1279,10 +1319,36 @@ function renderAdvice(rule, ai) {
   }
 }
 
-function renderTimeline(items) {
-  document.getElementById('opTable').innerHTML =
-    '<tr><th>周期</th><th>建议动作</th><th>关注信号</th></tr>' +
-    items.map(x => '<tr><td>' + x.w + '</td><td class="act">' + x.act + '</td><td class="watch">' + x.watch + '</td></tr>').join('');
+// 把 AI 扁平 timeline（[{key,scene,act,watch}]）按周期归组为 4 列结构
+function groupTimeline(flat) {
+  const order = ['short', 'mid', 'long'];
+  const label = { short: '短期 · 1年', mid: '中期 · 3年', long: '长期' };
+  const byKey = {};
+  flat.forEach(x => {
+    if (!byKey[x.key]) byKey[x.key] = { w: label[x.key] || x.key, invest: null, live: null, upgrade: null };
+    if (x.scene && !byKey[x.key][x.scene]) byKey[x.key][x.scene] = { act: x.act, watch: x.watch };
+  });
+  const rows = order.filter(k => byKey[k]).map(k => byKey[k]);
+  return rows.length ? rows : null;
+}
+
+function cell(o) {
+  if (!o || !o.act) return '<span class="tl-empty">—</span>';
+  const watch = o.watch ? '<div class="tl-watch">' + o.watch + '</div>' : '';
+  return '<div class="tl-act">' + o.act + '</div>' + watch;
+}
+
+function renderTimeline(rows) {
+  const el = document.getElementById('opTable');
+  if (!rows || !rows.length) { el.innerHTML = ''; return; }
+  el.innerHTML =
+    '<tr><th>周期</th><th>投资买家</th><th>自住刚需</th><th>改善置换</th></tr>' +
+    rows.map(x =>
+      '<tr><td class="tl-period">' + x.w + '</td>' +
+      '<td>' + cell(x.invest) + '</td>' +
+      '<td>' + cell(x.live) + '</td>' +
+      '<td>' + cell(x.upgrade) + '</td></tr>'
+    ).join('');
 }
 
 function renderTrend() {
