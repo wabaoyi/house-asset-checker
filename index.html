@@ -967,8 +967,8 @@ function scoreLocation(around) {
 
 // ---------- DeepSeek 调用（结构化输出 + 代理安全模式） ----------
 // DS_PROXY_URL：Vercel 代理，Key 只活在服务器端，零泄露
-// 生产 URL：https://house-asset-ds-proxy.vercel.app/api
-const DS_PROXY_URL = 'https://house-asset-ds-proxy-4qpq7kqg0-wabaoyis-projects.vercel.app/api';
+// 生产 URL：固定域名，避免使用 Vercel 预览部署的随机子域名（会被 Deployment Protection 拦截）
+const DS_PROXY_URL = 'https://house-asset-ds-proxy.vercel.app/api';
 // 共享 Token：与 Vercel 代理 PROXY_TOKEN 环境变量一致，拦截滥用
 const DS_PROXY_TOKEN = 'dc6e20a8561a3876c63535c971d5bacfd5449866134b1cf2a28698a15789513c';
 
@@ -1022,11 +1022,16 @@ async function getDeepSeekAdvice(r, ctx) {
     const t = setTimeout(() => ctrl.abort(), 20000);
     const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctrl.signal });
     clearTimeout(t);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) {
+      console.warn('[DS] proxy status', res.status, '– fallback to rule advice');
+      throw new Error('HTTP ' + res.status);
+    }
     const data = await res.json();
-    const txt = data.choices && data.choices[0].message.content.trim();
+    const txt = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content.trim();
+    if (!txt) console.warn('[DS] empty response body', data);
     return parseStructured(txt);
   } catch (e) {
+    console.warn('[DS] request failed:', e.message, '– fallback to rule advice');
     return null;
   }
 }
