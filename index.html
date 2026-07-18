@@ -967,8 +967,8 @@ function scoreLocation(around) {
 
 // ---------- DeepSeek 调用（结构化输出 + 代理安全模式） ----------
 // DS_PROXY_URL：Vercel 代理，Key 只活在服务器端，零泄露
-// 生产 URL：Vercel 固定域名（非预览部署地址），与 ds-proxy 项目绑定
-const DS_PROXY_URL = 'https://ds-proxy-kappa.vercel.app/api';
+// 生产 URL：连接已验证可通的旧项目，非 ds-proxy 新项目（新项目域名连不上）
+const DS_PROXY_URL = 'https://house-asset-ds-proxy.vercel.app/api';
 // 共享 Token：与 Vercel 代理 PROXY_TOKEN 环境变量一致，拦截滥用
 const DS_PROXY_TOKEN = 'dc6e20a8561a3876c63535c971d5bacfd5449866134b1cf2a28698a15789513c';
 var _lastProxyError = '';
