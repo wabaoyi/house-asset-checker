@@ -1268,7 +1268,11 @@ function renderAdvice(rule, ai) {
     riskList.innerHTML = '<ul>' + weak.map(x => '<li>' + x + '</li>').join('') + '</ul>';
   } else riskSec.style.display = 'none';
 
-  notice.textContent = '';
+  if (ai) {
+    notice.innerHTML = '<span style="display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;background:#E6F4EA;color:#1E7A34;font-weight:500;">🤖 智能专家诊断</span>';
+  } else {
+    notice.innerHTML = '<span style="display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;background:#FDF0E3;color:#B26A00;font-weight:500;">📐 规则测算</span>';
+  }
 }
 
 function renderTimeline(items) {
